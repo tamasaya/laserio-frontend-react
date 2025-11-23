@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { CategoryTree } from '../components/categories/CategoryTree'
 import { ErrorState, LoadingState } from '../components/common/States'
 import { ProductsGrid } from '../components/products/ProductsGrid'
@@ -189,13 +189,22 @@ function NonLeafView({ detail }: NonLeafViewProps) {
         >
           <div className="mb-3 flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-semibold text-slate-900">
+              <Link
+                to={`/catalog/${encodeURIComponent(child.slug)}`}
+                className="text-sm font-semibold text-slate-900 hover:text-laser-accent"
+              >
                 {child.name}
-              </h2>
+              </Link>
               <p className="text-xs text-slate-500">
                 {child.desc_product_count} товаров
               </p>
             </div>
+            <Link
+              to={`/catalog/${encodeURIComponent(child.slug)}`}
+              className="text-[11px] font-medium text-laser-accent hover:text-sky-700"
+            >
+              Описание →
+            </Link>
           </div>
           {child.products_preview.length === 0 ? (
             <p className="text-xs text-slate-500">
@@ -204,11 +213,12 @@ function NonLeafView({ detail }: NonLeafViewProps) {
           ) : (
             <div className="grid gap-4 sm:grid-cols-3">
               {child.products_preview.slice(0, 3).map((p) => (
-                <div
+                <Link
                   key={p.slug}
-                  className="flex flex-col rounded-2xl border border-slate-200 bg-white p-3 text-xs text-slate-700"
+                  to={`/products/${encodeURIComponent(p.slug)}`}
+                  className="flex flex-col rounded-2xl border border-slate-200 bg-white p-3 text-xs text-slate-700 hover:border-laser-accent hover:shadow-card transition"
                 >
-                  <div className="flex h-32 items-center justify-center overflow-hidden rounded-xl bg-slate-50 mb-2">
+                  <div className="mb-2 flex h-32 items-center justify-center overflow-hidden rounded-xl bg-slate-50">
                     {p.primary_image_url ? (
                       <img
                         src={p.primary_image_url}
@@ -227,7 +237,7 @@ function NonLeafView({ detail }: NonLeafViewProps) {
                       {p.name}
                     </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import type { ProductSummary } from '../../lib/api'
 import { normalizeImageUrl } from '../../lib/api'
 import { useCartStore } from '../../store/cartStore'
+import { useToastStore } from '../../store/toastStore'
 
 type ProductCardProps = {
   product: ProductSummary
@@ -9,6 +10,7 @@ type ProductCardProps = {
 
 export function ProductCard({ product }: ProductCardProps) {
   const add = useCartStore((s) => s.add)
+  const showToast = useToastStore((s) => s.showToast)
 
   const imageUrl = normalizeImageUrl(
     product.primary_image_url ?? product.image ?? null,
@@ -44,7 +46,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <button
           type="button"
           className="rounded-full bg-laser-blue text-xs font-semibold text-sky-50 px-3 py-1.5 hover:bg-laser-blue-light"
-          onClick={() =>
+          onClick={() => {
             add({
               id: product.id,
               name: product.name,
@@ -55,16 +57,11 @@ export function ProductCard({ product }: ProductCardProps) {
                 (product.image as string | null | undefined) ??
                 null,
             })
-          }
+            showToast('success', 'Товар добавлен в заявку.')
+          }}
         >
           В заявку
         </button>
-        <Link
-          to={`/products/${encodeURIComponent(product.slug)}`}
-          className="text-xs font-medium text-laser-accent hover:text-sky-600"
-        >
-          Подробнее →
-        </Link>
       </div>
     </div>
   )

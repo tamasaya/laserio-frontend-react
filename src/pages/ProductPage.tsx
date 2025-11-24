@@ -4,6 +4,7 @@ import { ErrorState, LoadingState } from '../components/common/States'
 import { useProduct } from '../lib/hooks'
 import { normalizeImageUrl } from '../lib/api'
 import { useCartStore } from '../store/cartStore'
+import { useToastStore } from '../store/toastStore'
 
 export function ProductPage() {
   const { slug = '' } = useParams()
@@ -22,6 +23,7 @@ export function ProductPage() {
   } | null>(null)
   const { data, loading, error } = useProduct(slug)
   const add = useCartStore((s) => s.add)
+  const showToast = useToastStore((s) => s.showToast)
 
   const closeViewer = () => {
     setIsViewerOpen(false)
@@ -97,7 +99,7 @@ export function ProductPage() {
           <div className="flex flex-wrap items-center gap-4">
             <button
               type="button"
-              onClick={() =>
+              onClick={() => {
                 add({
                   id: data.id,
                   name: data.name,
@@ -105,21 +107,12 @@ export function ProductPage() {
                   price: data.price,
                   primary_image_url: data.primary_image_url,
                 })
-              }
+                showToast('success', 'Товар добавлен в заявку.')
+              }}
               className="rounded-full bg-laser-blue px-6 py-2 text-sm font-semibold text-sky-50 hover:bg-laser-blue-light"
             >
               Добавить в заявку
             </button>
-            {data.doc_url && (
-              <a
-                href={data.doc_url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs font-medium text-laser-accent hover:text-sky-700"
-              >
-                Скачать документацию
-              </a>
-            )}
           </div>
         </div>
 
@@ -427,14 +420,27 @@ function ProductTabs({
         {hasDocs && (
           <button
             type="button"
-            onClick={() => setActive('docs')}
+            onClick={() => {
+              if (hasDocs && docUrl) {
+                try {
+                  const link = document.createElement('a')
+                  link.href = docUrl
+                  link.download = ''
+                  document.body.appendChild(link)
+                  link.click()
+                  document.body.removeChild(link)
+                } catch {
+                  window.open(docUrl, '_blank', 'noopener,noreferrer')
+                }
+              }
+            }}
             className={`border-b-2 pb-2 ${
               active === 'docs'
                 ? 'border-laser-blue text-laser-blue'
                 : 'border-transparent text-slate-500'
             }`}
           >
-            Документация
+            Скачать документацию
           </button>
         )}
       </div>
@@ -455,18 +461,8 @@ function ProductTabs({
           <div dangerouslySetInnerHTML={{ __html: specsHtml }} />
         )}
 
-        {active === 'docs' && hasDocs && (
-          <div>
-            <a
-              href={docUrl ?? undefined}
-              target="_blank"
-              rel="noreferrer"
-              className="text-sm font-medium text-laser-accent hover:text-sky-700"
-            >
-              Скачать документацию
-            </a>
-          </div>
-        )}
+        {/* Вкладка документации не показывает отдельный контент,
+            клик по кнопке сразу инициирует скачивание файла. */}
       </div>
     </div>
   )

@@ -36,55 +36,7 @@ export function HomePage() {
           </div>
         </div>
       </section>
-
-      <section>
-        <h2 className="mb-4 text-xl font-semibold text-slate-800">
-          Разделы каталога
-        </h2>
-        <div className="grid gap-4 md:grid-cols-3">
-          <HomeCard
-            title="Каталог по разделам"
-            description="Переходите к дереву категорий и находите нужный класс оборудования."
-            to="/catalog"
-          />
-          <HomeCard
-            title="Тепловизионные системы"
-            description="Охлаждаемые и неохлаждаемые камеры, модули и комплектующие."
-            to="/catalog/teplovizionnye-sistemy"
-          />
-          <HomeCard
-            title="Поиск по товарам"
-            description="Глобальный поиск по наименованию, описанию и другим параметрам."
-            to="/products"
-          />
-        </div>
-      </section>
     </div>
-  )
-}
-
-type HomeCardProps = {
-  title: string
-  description: string
-  to: string
-}
-
-function HomeCard({ title, description, to }: HomeCardProps) {
-  return (
-    <Link
-      to={to}
-      className="flex flex-col justify-between rounded-2xl bg-white/90 p-5 text-sm text-slate-700 shadow-card ring-1 ring-slate-200 hover:-translate-y-0.5 hover:shadow-lg transition"
-    >
-      <div>
-        <h3 className="mb-2 text-base font-semibold text-slate-900">
-          {title}
-        </h3>
-        <p className="text-xs text-slate-500">{description}</p>
-      </div>
-      <span className="mt-4 text-xs font-semibold text-laser-accent">
-        Открыть →
-      </span>
-    </Link>
   )
 }
 

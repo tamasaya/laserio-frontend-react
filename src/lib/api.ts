@@ -113,6 +113,12 @@ export type OrderPayload = {
     comment?: string
   }
   items: { product_id: number; qty: number }[]
+  shipped_items?: number[]
+  customer_name?: string
+  email?: string
+  phone?: string
+  comment?: string
+  address?: string
 }
 
 export type OrderResponse = {
@@ -183,6 +189,22 @@ export async function fetchProductsList(
   const url = `${API_BASE}/products${query ? `?${query}` : ''}`
   const res = await fetch(url)
   return handleResponse<ProductsListResponse>(res)
+}
+
+export async function fetchCategoryProducts(
+  slug: string,
+  page?: number,
+): Promise<PaginatedProductsResponse> {
+  const params = new URLSearchParams()
+  if (page && page > 1) {
+    params.set('page', String(page))
+  }
+  const query = params.toString()
+  const url = `${API_BASE}/categories/${encodeURIComponent(
+    slug,
+  )}/products${query ? `?${query}` : ''}`
+  const res = await fetch(url)
+  return handleResponse<PaginatedProductsResponse>(res)
 }
 
 export async function postOrder(

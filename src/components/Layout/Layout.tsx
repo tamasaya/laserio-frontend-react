@@ -3,6 +3,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { CartBadge } from '../cart/CartBadge'
 import { Breadcrumbs } from '../navigation/Breadcrumbs'
 import { GlobalProductSearch } from '../products/GlobalProductSearch'
+import { useToastStore } from '../../store/toastStore'
 
 type LayoutProps = {
   children: ReactNode
@@ -11,11 +12,39 @@ type LayoutProps = {
 export function Layout({ children }: LayoutProps) {
   const location = useLocation()
   const navigate = useNavigate()
+  const toasts = useToastStore((s) => s.toasts)
+  const removeToast = useToastStore((s) => s.removeToast)
 
   const isHome = location.pathname === '/'
 
   return (
     <>
+      {toasts.length > 0 && (
+        <div className="pointer-events-none fixed inset-x-0 top-16 z-50 flex flex-col items-end gap-2 px-4 sm:top-20">
+          {toasts.map((toast) => (
+            <div
+              key={toast.id}
+              className="pointer-events-auto flex max-w-xs items-start gap-2 rounded-xl bg-slate-900/95 px-4 py-3 text-xs text-slate-50 shadow-lg ring-1 ring-slate-700/80"
+            >
+              <div
+                className={`mt-0.5 h-2 w-2 flex-shrink-0 rounded-full ${
+                  toast.type === 'success'
+                    ? 'bg-emerald-400'
+                    : 'bg-rose-400'
+                }`}
+              />
+              <div className="flex-1">{toast.message}</div>
+              <button
+                type="button"
+                onClick={() => removeToast(toast.id)}
+                className="ml-2 text-[11px] text-slate-300 hover:text-white"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
       <header className="gradient-header text-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:py-5">
           <div className="flex items-center gap-10">
@@ -24,11 +53,6 @@ export function Layout({ children }: LayoutProps) {
               onClick={() => navigate('/')}
               className="flex items-center gap-3"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-sky-400/40 bg-white/5">
-                <span className="text-xs font-semibold tracking-[0.15em]">
-                  LASER
-                </span>
-              </div>
               <div className="hidden flex-col text-left sm:flex">
                 <span className="text-xs uppercase tracking-[0.25em] text-sky-200">
                   Laser &amp; Opto
@@ -60,19 +84,10 @@ export function Layout({ children }: LayoutProps) {
               >
                 Карта каталога
               </NavLink>
-              <span className="text-xs text-sky-200/70">Новости</span>
-              <span className="text-xs text-sky-200/70">Блог</span>
-              <span className="text-xs text-sky-200/70">Сервис</span>
             </nav>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="hidden items-center gap-3 text-xs text-sky-100/90 sm:flex">
-              <span>Почта</span>
-              <span className="opacity-50">|</span>
-              <span>телефон</span>
-            </div>
-
             <GlobalProductSearch />
 
             <CartBadge />

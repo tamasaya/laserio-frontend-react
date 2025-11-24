@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { ErrorState } from '../components/common/States'
 import { postOrder, type OrderPayload } from '../lib/api'
 import { useCartStore } from '../store/cartStore'
+import { useToastStore } from '../store/toastStore'
 
 export function CheckoutPage() {
   const items = useCartStore((s) => s.items)
@@ -11,20 +12,20 @@ export function CheckoutPage() {
   const navigate = useNavigate()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
+  const showToast = useToastStore((s) => s.showToast)
 
   const [fullName, setFullName] = useState('')
   const [company, setCompany] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [comment, setComment] = useState('')
+  const [address, setAddress] = useState('')
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (items.length === 0) return
     setSubmitting(true)
     setError(null)
-    setSuccess(null)
 
     const payload: OrderPayload = {
       customer: {
@@ -34,40 +35,35 @@ export function CheckoutPage() {
         phone,
         comment: comment || undefined,
       },
+      // Плоские поля для прямого маппинга на таблицу orders
+      customer_name: fullName,
+      email,
+      phone,
+      comment: comment || undefined,
+      address: address || undefined,
       items: items.map((i) => ({
         product_id: i.product.id,
         qty: i.qty,
       })),
+      shipped_items: items.map((i) => i.product.id),
     }
 
     try {
       await postOrder(payload)
-      setSuccess('Заявка успешно отправлена. Наши менеджеры свяжутся с вами.')
       clear()
-      setTimeout(() => {
-        navigate('/')
-      }, 1500)
-    } catch (err) {
-      const subject = encodeURIComponent('Заявка с сайта Laserio')
-      const bodyLines = [
-        `ФИО: ${fullName}`,
-        `Компания: ${company}`,
-        `Email: ${email}`,
-        `Телефон: ${phone}`,
-        `Комментарий: ${comment}`,
-        '',
-        'Товары:',
-        ...items.map(
-          (i) =>
-            `- ${i.product.name} (id: ${i.product.id}), количество: ${i.qty}`,
-        ),
-      ]
-      const body = encodeURIComponent(bodyLines.join('\n'))
-      window.location.href = `mailto:info@example.com?subject=${subject}&body=${body}`
-      setSuccess(
-        'Не удалось отправить заявку через API, но мы подготовили письмо в вашу почтовую программу. Вы также можете отправить его вручную.',
+      showToast(
+        'success',
+        'Заявка успешно отправлена. Наши менеджеры свяжутся с вами.',
       )
+      navigate('/')
+    } catch (err) {
       setError(
+        err instanceof Error
+          ? err.message
+          : 'Ошибка при отправке заявки.',
+      )
+      showToast(
+        'error',
         err instanceof Error
           ? err.message
           : 'Ошибка при отправке заявки.',
@@ -128,6 +124,15 @@ export function CheckoutPage() {
           </Field>
         </div>
 
+        <Field label="Адрес">
+          <textarea
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            rows={3}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-laser-accent focus:outline-none"
+          />
+        </Field>
+
         <Field label="Комментарий к заявке">
           <textarea
             value={comment}
@@ -138,13 +143,9 @@ export function CheckoutPage() {
         </Field>
 
         {error && (
-          <p className="text-xs text-rose-600">
-            Ошибка отправки через API: {error}
-          </p>
+          <p className="text-xs text-rose-600">Ошибка: {error}</p>
         )}
-        {success && (
-          <p className="text-xs text-emerald-600">{success}</p>
-        )}
+        {/* Текстовое сообщение об успехе не показываем, за это отвечает toast */}
 
         <button
           type="submit"

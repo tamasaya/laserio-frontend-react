@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { CategoryTree } from '../components/categories/CategoryTree'
 import { ErrorState, LoadingState } from '../components/common/States'
@@ -8,8 +8,12 @@ import {
   type CategoryDetailNonLeaf,
   type CategoryNode,
   type PaginatedProductsResponse,
+  type ProductSummary,
+  fetchCategoryProducts,
 } from '../lib/api'
 import { useCategoryDetail, useCategoryTree } from '../lib/hooks'
+import { useCartStore } from '../store/cartStore'
+import { useToastStore } from '../store/toastStore'
 
 export function CatalogPage() {
   const { slug = '' } = useParams()
@@ -64,13 +68,6 @@ export function CatalogPage() {
   return (
     <div className="grid gap-6 md:grid-cols-[280px,1fr]">
       <aside className="space-y-4">
-        <div className="rounded-2xl bg-white/90 p-3 shadow-card ring-1 ring-slate-200">
-          <input
-            type="search"
-            placeholder="Поиск по каталогу"
-            className="w-full rounded-full border border-slate-200 px-3 py-1.5 text-xs focus:border-laser-accent focus:outline-none"
-          />
-        </div>
         {treeLoading && (
           <LoadingState message="Загружаем дерево категорий..." />
         )}
@@ -151,42 +148,178 @@ function NonLeafView({ detail }: NonLeafViewProps) {
   return (
     <div className="space-y-8">
       {detail.children.map((child: CategoryChildPreview) => (
-        <section
-          key={child.id}
-          className="rounded-2xl bg-white/90 p-4 shadow-card ring-1 ring-slate-200"
-        >
-          <div className="mb-3 flex items-center justify-between">
-            <div>
-              <Link
-                to={`/catalog/${encodeURIComponent(child.slug)}`}
-                className="text-sm font-semibold text-slate-900 hover:text-laser-accent"
-              >
-                {child.name}
-              </Link>
-              <p className="text-xs text-slate-500">
-                {child.desc_product_count} товаров
-              </p>
-            </div>
-            <Link
-              to={`/catalog/${encodeURIComponent(child.slug)}`}
-              className="text-[11px] font-medium text-laser-accent hover:text-sky-700"
+        <ChildCategorySection key={child.id} child={child} />
+      ))}
+    </div>
+  )
+}
+
+type ChildCategorySectionProps = {
+  child: CategoryChildPreview
+}
+
+function ChildCategorySection({ child }: ChildCategorySectionProps) {
+  const addToCart = useCartStore((s) => s.add)
+  const showToast = useToastStore((s) => s.showToast)
+  const [expanded, setExpanded] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [allProducts, setAllProducts] = useState<ProductSummary[] | null>(
+    null,
+  )
+
+  const previewProducts = useMemo(() => {
+    if (allProducts && allProducts.length > 0) {
+      return allProducts.slice(0, 3)
+    }
+    return child.products_preview.map((p) => ({
+      id: 0,
+      name: p.name,
+      slug: p.slug,
+      primary_image_url: p.primary_image_url,
+    })) as unknown as ProductSummary[]
+  }, [allProducts, child.products_preview])
+
+  const extraProducts = useMemo(() => {
+    if (!allProducts) return []
+    if (allProducts.length <= 3) return []
+    return allProducts.slice(3)
+  }, [allProducts])
+
+  const handleToggle = () => {
+    const next = !expanded
+    setExpanded(next)
+    if (next && !loading && !error && !allProducts) {
+      setLoading(true)
+      fetchCategoryProducts(child.slug)
+        .then((resp) => {
+          setAllProducts(resp.products)
+          setLoading(false)
+        })
+        .catch((e: unknown) => {
+          setError(
+            e instanceof Error
+              ? e.message
+              : 'Не удалось загрузить товары категории.',
+          )
+          setLoading(false)
+        })
+    }
+  }
+
+  const showPreview = child.products_preview.length > 0
+
+  return (
+    <section className="rounded-2xl bg-white/90 p-4 shadow-card ring-1 ring-slate-200">
+      <div className="mb-3 flex items-center justify-between">
+        <div>
+          <Link
+            to={`/catalog/${encodeURIComponent(child.slug)}`}
+            className="text-sm font-semibold text-slate-900 hover:text-laser-accent"
+          >
+            {child.name}
+          </Link>
+          <p className="text-xs text-slate-500">
+            {child.desc_product_count} товаров
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-1 text-[11px]">
+          <Link
+            to={`/catalog/${encodeURIComponent(child.slug)}`}
+            className="font-medium text-laser-accent hover:text-sky-700"
+          >
+            Описание →
+          </Link>
+          {child.desc_product_count > child.products_preview.length && (
+            <button
+              type="button"
+              onClick={handleToggle}
+              className="rounded-full border border-laser-accent px-3 py-1 text-[11px] font-medium text-laser-accent hover:bg-laser-accent hover:text-white"
             >
-              Описание →
+              {expanded ? 'Скрыть товары' : 'Показать все товары'}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {!showPreview ? (
+        <p className="text-xs text-slate-500">
+          Нет предварительных товаров.
+        </p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-3">
+          {previewProducts.map((p) => (
+            <Link
+              key={p.slug}
+              to={`/products/${encodeURIComponent(p.slug)}`}
+              className="flex flex-col rounded-2xl border border-slate-200 bg-white p-3 text-xs text-slate-700 hover:border-laser-accent hover:shadow-card transition"
+            >
+              <div className="mb-2 flex h-32 items-center justify-center overflow-hidden rounded-xl bg-slate-50">
+                {p.primary_image_url ? (
+                  <img
+                    src={p.primary_image_url}
+                    alt={p.name}
+                    className="h-full w-full object-contain"
+                    loading="lazy"
+                  />
+                ) : (
+                  <span className="text-[11px] text-slate-400">
+                    Нет изображения
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-1 flex-col">
+                <span className="mb-2 line-clamp-2 text-xs font-medium text-slate-800">
+                  {p.name}
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    addToCart({
+                      id: p.id || 0,
+                      name: p.name,
+                      slug: p.slug,
+                      primary_image_url: p.primary_image_url,
+                    })
+                    showToast('success', 'Товар добавлен в заявку.')
+                  }}
+                  className="mt-auto self-start rounded-full bg-laser-blue px-3 py-1 text-[11px] font-semibold text-sky-50 hover:bg-laser-blue-light"
+                >
+                  В заявку
+                </button>
+              </div>
             </Link>
-          </div>
-          {child.products_preview.length === 0 ? (
-            <p className="text-xs text-slate-500">
-              Нет предварительных товаров.
+          ))}
+        </div>
+      )}
+
+      {expanded && (
+        <div className="mt-3 border-t border-slate-200 pt-3">
+          {loading && (
+            <p className="text-[11px] text-slate-500">
+              Загружаем остальные товары...
             </p>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-3">
-              {child.products_preview.slice(0, 3).map((p) => (
+          )}
+          {error && (
+            <p className="text-[11px] text-rose-600">
+              {error}
+            </p>
+          )}
+          {!loading && !error && extraProducts.length === 0 && (
+            <p className="text-[11px] text-slate-500">
+              Все товары уже показаны выше.
+            </p>
+          )}
+          {!loading && !error && extraProducts.length > 0 && (
+            <div className="mt-2 grid gap-3 sm:grid-cols-3">
+              {extraProducts.map((p) => (
                 <Link
                   key={p.slug}
                   to={`/products/${encodeURIComponent(p.slug)}`}
                   className="flex flex-col rounded-2xl border border-slate-200 bg-white p-3 text-xs text-slate-700 hover:border-laser-accent hover:shadow-card transition"
                 >
-                  <div className="mb-2 flex h-32 items-center justify-center overflow-hidden rounded-xl bg-slate-50">
+                  <div className="mb-2 flex h-28 items-center justify-center overflow-hidden rounded-xl bg-slate-50">
                     {p.primary_image_url ? (
                       <img
                         src={p.primary_image_url}
@@ -201,17 +334,33 @@ function NonLeafView({ detail }: NonLeafViewProps) {
                     )}
                   </div>
                   <div className="flex flex-1 flex-col">
-                    <span className="mb-2 line-clamp-2 text-xs font-medium text-slate-800">
+                    <span className="mb-1 line-clamp-2 text-xs font-medium text-slate-800">
                       {p.name}
                     </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        addToCart({
+                          id: p.id,
+                          name: p.name,
+                          slug: p.slug,
+                          primary_image_url: p.primary_image_url,
+                        })
+                        showToast('success', 'Товар добавлен в заявку.')
+                      }}
+                      className="mt-auto self-start rounded-full bg-laser-blue px-3 py-1 text-[11px] font-semibold text-sky-50 hover:bg-laser-blue-light"
+                    >
+                      В заявку
+                    </button>
                   </div>
                 </Link>
               ))}
             </div>
           )}
-        </section>
-      ))}
-    </div>
+        </div>
+      )}
+    </section>
   )
 }
 

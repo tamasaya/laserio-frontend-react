@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { CartBadge } from '../cart/CartBadge'
 import { Breadcrumbs } from '../navigation/Breadcrumbs'
 import { GlobalProductSearch } from '../products/GlobalProductSearch'
@@ -74,13 +74,6 @@ export function Layout({ children }: LayoutProps) {
             </div>
 
             <GlobalProductSearch />
-
-            <Link
-              to="/cart"
-              className="hidden rounded-full bg-white/10 px-4 py-1.5 text-xs font-medium text-sky-50 shadow-sm ring-1 ring-sky-500/60 hover:bg-sky-500/80 md:inline-flex"
-            >
-              Заявки
-            </Link>
 
             <CartBadge />
           </div>

@@ -64,13 +64,23 @@ export type ProductSummary = {
   image?: string | null
 }
 
+export type ProductGalleryItem = {
+  id: string
+  alt: string
+  url: string
+  mime: string
+  size: number
+  sort: number
+  filename: string
+}
+
 export type ProductDetail = {
   id: number
   name: string
   slug: string
   price: number
   primary_image_url: string | null
-  gallery_images?: string[] | null
+  gallery?: ProductGalleryItem[] | null
   content_html?: string | null
   specs_html?: string | null
   doc_url?: string | null

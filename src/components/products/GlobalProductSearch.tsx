@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useProductsList } from '../../lib/hooks'
+import { normalizeImageUrl } from '../../lib/api'
 
 const PAGE_SIZE_OPTIONS = [20, 50, 100] as const
 
@@ -89,9 +90,15 @@ export function GlobalProductSearch() {
                       className="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-slate-100"
                     >
                       <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-50">
-                        {p.primary_image_url ? (
+                        {normalizeImageUrl(
+                          p.primary_image_url ?? p.image ?? null,
+                        ) ? (
                           <img
-                            src={p.primary_image_url}
+                            src={
+                              normalizeImageUrl(
+                                p.primary_image_url ?? p.image ?? null,
+                              )!
+                            }
                             alt={p.name}
                             className="h-full w-full object-contain"
                             loading="lazy"

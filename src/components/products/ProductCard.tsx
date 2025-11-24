@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { ProductSummary } from '../../lib/api'
+import { normalizeImageUrl } from '../../lib/api'
 import { useCartStore } from '../../store/cartStore'
 
 type ProductCardProps = {
@@ -14,6 +15,10 @@ export function ProductCard({ product }: ProductCardProps) {
       ? 'Цена по запросу'
       : `${product.price.toLocaleString('ru-RU')} ₽`
 
+  const imageUrl = normalizeImageUrl(
+    product.primary_image_url ?? product.image ?? null,
+  )
+
   return (
     <div className="flex h-full flex-col rounded-2xl bg-white shadow-card ring-1 ring-slate-200">
       <Link
@@ -21,9 +26,9 @@ export function ProductCard({ product }: ProductCardProps) {
         className="flex flex-1 flex-col"
       >
         <div className="flex h-44 items-center justify-center overflow-hidden rounded-t-2xl bg-slate-50">
-          {product.primary_image_url ? (
+          {imageUrl ? (
             <img
-              src={product.primary_image_url}
+              src={imageUrl}
               alt={product.name}
               className="h-full w-full object-contain"
               loading="lazy"

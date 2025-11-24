@@ -59,8 +59,9 @@ export type ProductSummary = {
   id: number
   name: string
   slug: string
-  price: number
-  primary_image_url: string | null
+  price?: number
+  primary_image_url?: string | null
+  image?: string | null
 }
 
 export type ProductDetail = {
@@ -114,6 +115,18 @@ async function handleResponse<T>(res: Response): Promise<T> {
     throw new Error(text || `Request failed with status ${res.status}`)
   }
   return (await res.json()) as T
+}
+
+export function normalizeImageUrl(
+  path?: string | null,
+): string | null {
+  if (!path) return null
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path
+  }
+  const base = API_BASE.replace(/\/$/, '')
+  const cleanPath = path.startsWith('/') ? path : `/${path}`
+  return `${base}${cleanPath}`
 }
 
 export async function fetchCategoryTree(): Promise<CategoryTreeResponse> {

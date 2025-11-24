@@ -10,11 +10,6 @@ type ProductCardProps = {
 export function ProductCard({ product }: ProductCardProps) {
   const add = useCartStore((s) => s.add)
 
-  const priceLabel =
-    !product.price || product.price === 0
-      ? 'Цена по запросу'
-      : `${product.price.toLocaleString('ru-RU')} ₽`
-
   const imageUrl = normalizeImageUrl(
     product.primary_image_url ?? product.image ?? null,
   )
@@ -40,12 +35,9 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
         <div className="flex flex-1 flex-col px-4 py-3">
-          <h3 className="mb-2 line-clamp-2 text-sm font-semibold text-slate-800">
+          <h3 className="mb-1 line-clamp-2 text-sm font-semibold text-slate-800">
             {product.name}
           </h3>
-          <p className="mt-auto text-sm font-medium text-laser-blue">
-            {priceLabel}
-          </p>
         </div>
       </Link>
       <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3">

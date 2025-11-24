@@ -7,11 +7,6 @@ export function CartPage() {
   const setQty = useCartStore((s) => s.setQty)
   const clear = useCartStore((s) => s.clear)
 
-  const total = items.reduce(
-    (sum, item) => sum + (item.product.price || 0) * item.qty,
-    0,
-  )
-
   if (items.length === 0) {
     return (
       <div className="rounded-2xl bg-white/95 p-6 text-sm text-slate-600 shadow-card ring-1 ring-slate-200">
@@ -64,20 +59,8 @@ export function CartPage() {
                   </span>
                 )}
               </div>
-              <div>
-                <div className="mb-1 text-sm font-medium text-slate-900">
-                  {item.product.name}
-                </div>
-                {item.product.price ? (
-                  <div className="text-xs text-slate-600">
-                    {item.product.price.toLocaleString('ru-RU')} ₽ за
-                    единицу
-                  </div>
-                ) : (
-                  <div className="text-xs text-slate-600">
-                    Цена по запросу
-                  </div>
-                )}
+              <div className="text-sm font-medium text-slate-900">
+                {item.product.name}
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -124,14 +107,6 @@ export function CartPage() {
       </div>
 
       <div className="flex flex-col items-end gap-2 text-sm">
-        <div className="text-slate-700">
-          Итого:{' '}
-          <span className="font-semibold text-laser-blue">
-            {total === 0
-              ? 'по запросу'
-              : `${total.toLocaleString('ru-RU')} ₽`}
-          </span>
-        </div>
         <Link
           to="/checkout"
           className="mt-2 inline-flex rounded-full bg-laser-blue px-6 py-2 text-sm font-semibold text-sky-50 hover:bg-laser-blue-light"

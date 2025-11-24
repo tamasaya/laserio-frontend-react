@@ -11,17 +11,9 @@ import {
 } from '../lib/api'
 import { useCategoryDetail, useCategoryTree } from '../lib/hooks'
 
-type SortKey =
-  | 'new'
-  | 'price_asc'
-  | 'price_desc'
-  | 'name_asc'
-  | 'name_desc'
-
 export function CatalogPage() {
   const { slug = '' } = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
-  const sort = (searchParams.get('sort') as SortKey | null) ?? 'new'
   const page = Number(searchParams.get('page') ?? '1') || 1
 
   const {
@@ -59,39 +51,10 @@ export function CatalogPage() {
     return (data as PaginatedProductsResponse).products !== undefined
   }, [data])
 
-  const onSortChange = (value: SortKey) => {
-    searchParams.set('sort', value)
-    searchParams.set('page', '1')
-    setSearchParams(searchParams, { replace: true })
-  }
-
   const onPageChange = (next: number) => {
     searchParams.set('page', String(next))
     setSearchParams(searchParams, { replace: true })
   }
-
-  const sortedProducts = useMemo(() => {
-    if (!isLeaf || !data) return []
-    const resp = data as PaginatedProductsResponse
-    const products = [...resp.products]
-    switch (sort) {
-      case 'price_asc':
-        products.sort((a, b) => (a.price || 0) - (b.price || 0))
-        break
-      case 'price_desc':
-        products.sort((a, b) => (b.price || 0) - (a.price || 0))
-        break
-      case 'name_asc':
-        products.sort((a, b) => a.name.localeCompare(b.name))
-        break
-      case 'name_desc':
-        products.sort((a, b) => b.name.localeCompare(a.name))
-        break
-      default:
-        break
-    }
-    return products
-  }, [data, isLeaf, sort])
 
   const meta =
     isLeaf && data
@@ -127,24 +90,6 @@ export function CatalogPage() {
               </p>
             )}
           </div>
-          {isLeaf && (
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-500">Сортировка:</span>
-              <select
-                value={sort}
-                onChange={(e) =>
-                  onSortChange(e.target.value as SortKey)
-                }
-                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-700"
-              >
-                <option value="new">Сначала новые</option>
-                <option value="price_asc">Цена ↑</option>
-                <option value="price_desc">Цена ↓</option>
-                <option value="name_asc">Название A–Я</option>
-                <option value="name_desc">Название Я–A</option>
-              </select>
-            </div>
-          )}
         </div>
 
         {detailLoading && (
@@ -161,7 +106,11 @@ export function CatalogPage() {
             )}
             {isLeaf && (
               <>
-                <ProductsGrid products={sortedProducts} />
+                <ProductsGrid
+                  products={
+                    (data as PaginatedProductsResponse).products
+                  }
+                />
                 {meta && meta.pages > 1 && (
                   <div className="mt-4 flex items-center justify-center gap-3 text-xs text-slate-600">
                     <button

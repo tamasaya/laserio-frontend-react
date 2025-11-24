@@ -4,7 +4,7 @@ export type CartProduct = {
   id: number
   name: string
   slug: string
-  price: number
+  price?: number
   primary_image_url?: string | null
 }
 

@@ -19,11 +19,6 @@ export function CheckoutPage() {
   const [phone, setPhone] = useState('')
   const [comment, setComment] = useState('')
 
-  const total = items.reduce(
-    (sum, item) => sum + (item.product.price || 0) * item.qty,
-    0,
-  )
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (items.length === 0) return
@@ -178,23 +173,12 @@ export function CheckoutPage() {
                   Количество: {item.qty}
                 </div>
               </div>
-              <div className="text-right text-slate-600">
-                {item.product.price
-                  ? `${(item.product.price * item.qty).toLocaleString(
-                      'ru-RU',
-                    )} ₽`
-                  : 'по запросу'}
-              </div>
+              <div className="text-right text-slate-600" />
             </div>
           ))}
         </div>
-        <div className="border-t border-slate-200 pt-3 text-sm text-slate-700">
-          Итого:{' '}
-          <span className="font-semibold text-laser-blue">
-            {total === 0
-              ? 'по запросу'
-              : `${total.toLocaleString('ru-RU')} ₽`}
-          </span>
+        <div className="border-t border-slate-200 pt-3 text-xs text-slate-500">
+          Итоговая стоимость будет рассчитана менеджером после обработки заявки.
         </div>
       </aside>
     </div>

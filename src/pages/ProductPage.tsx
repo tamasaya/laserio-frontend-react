@@ -31,11 +31,6 @@ export function ProductPage() {
     )
   }
 
-  const priceLabel =
-    !data.price || data.price === 0
-      ? 'Цена по запросу'
-      : `${data.price.toLocaleString('ru-RU')} ₽`
-
   const images = [
     data.primary_image_url,
     ...(data.gallery_images ?? []),
@@ -45,16 +40,10 @@ export function ProductPage() {
     <div className="space-y-8 rounded-2xl bg-white/95 p-6 shadow-card ring-1 ring-slate-200">
       <div className="grid gap-6 md:grid-cols-[minmax(0,2fr),minmax(0,3fr)]">
         <div>
-          <div className="mb-3 text-xs font-medium text-slate-500">
-            Тепловизионные системы и комплектующие (40шт)
-          </div>
           <h1 className="mb-4 text-2xl font-semibold text-slate-900">
             {data.name}
           </h1>
           <div className="flex flex-wrap items-center gap-4">
-            <div className="text-xl font-semibold text-laser-blue">
-              {priceLabel}
-            </div>
             <button
               type="button"
               onClick={() =>
@@ -132,6 +121,9 @@ function ProductTabs({
   specsHtml,
   docUrl,
 }: ProductTabsProps) {
+  const hasSpecs = !!specsHtml
+  const hasDocs = !!docUrl
+
   const [active, setActive] = useState<'description' | 'specs' | 'docs'>(
     'description',
   )
@@ -150,28 +142,32 @@ function ProductTabs({
         >
           Описание
         </button>
-        <button
-          type="button"
-          onClick={() => setActive('specs')}
-          className={`border-b-2 pb-2 ${
-            active === 'specs'
-              ? 'border-laser-blue text-laser-blue'
-              : 'border-transparent text-slate-500'
-          }`}
-        >
-          Характеристики
-        </button>
-        <button
-          type="button"
-          onClick={() => setActive('docs')}
-          className={`border-b-2 pb-2 ${
-            active === 'docs'
-              ? 'border-laser-blue text-laser-blue'
-              : 'border-transparent text-slate-500'
-          }`}
-        >
-          Документация
-        </button>
+        {hasSpecs && (
+          <button
+            type="button"
+            onClick={() => setActive('specs')}
+            className={`border-b-2 pb-2 ${
+              active === 'specs'
+                ? 'border-laser-blue text-laser-blue'
+                : 'border-transparent text-slate-500'
+            }`}
+          >
+            Характеристики
+          </button>
+        )}
+        {hasDocs && (
+          <button
+            type="button"
+            onClick={() => setActive('docs')}
+            className={`border-b-2 pb-2 ${
+              active === 'docs'
+                ? 'border-laser-blue text-laser-blue'
+                : 'border-transparent text-slate-500'
+            }`}
+          >
+            Документация
+          </button>
+        )}
       </div>
 
       <div className="prose max-w-none prose-sm text-slate-700 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-slate-200 [&_td]:px-2 [&_td]:py-1">
@@ -186,31 +182,20 @@ function ProductTabs({
           </p>
         )}
 
-        {active === 'specs' && specsHtml && (
+        {active === 'specs' && hasSpecs && specsHtml && (
           <div dangerouslySetInnerHTML={{ __html: specsHtml }} />
         )}
-        {active === 'specs' && !specsHtml && (
-          <p className="text-sm text-slate-500">
-            Технические характеристики пока недоступны.
-          </p>
-        )}
 
-        {active === 'docs' && (
+        {active === 'docs' && hasDocs && (
           <div>
-            {docUrl ? (
-              <a
-                href={docUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="text-sm font-medium text-laser-accent hover:text-sky-700"
-              >
-                Скачать документацию
-              </a>
-            ) : (
-              <p className="text-sm text-slate-500">
-                Документация пока недоступна.
-              </p>
-            )}
+            <a
+              href={docUrl ?? undefined}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm font-medium text-laser-accent hover:text-sky-700"
+            >
+              Скачать документацию
+            </a>
           </div>
         )}
       </div>

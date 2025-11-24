@@ -5,18 +5,10 @@ import { SearchBar } from '../components/common/SearchBar'
 import { ProductsGrid } from '../components/products/ProductsGrid'
 import { useProductsList } from '../lib/hooks'
 
-type SortKey =
-  | 'new'
-  | 'price_asc'
-  | 'price_desc'
-  | 'name_asc'
-  | 'name_desc'
-
 export function ProductsListPage() {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const qParam = searchParams.get('q') ?? ''
-  const sort = (searchParams.get('sort') as SortKey | null) ?? 'new'
   const page = Number(searchParams.get('page') ?? '1') || 1
   const limitParam = Number(searchParams.get('limit') ?? '20') || 20
   const pageSize = [20, 50, 100].includes(limitParam) ? limitParam : 20
@@ -25,7 +17,6 @@ export function ProductsListPage() {
 
   const { data, loading, error } = useProductsList({
     q: qParam || undefined,
-    sort,
     page,
     limit: pageSize,
   })
@@ -50,10 +41,6 @@ export function ProductsListPage() {
   const handleSearchChange = (value: string) => {
     setSearchValue(value)
     updateParam('q', value || null)
-  }
-
-  const handleSortChange = (value: SortKey) => {
-    updateParam('sort', value)
   }
 
   const handlePageChange = (nextPage: number) => {
@@ -87,21 +74,7 @@ export function ProductsListPage() {
             placeholder="Поиск по наименованию или описанию"
           />
           <div className="flex items-center gap-3 text-xs">
-            <span className="text-slate-500">Сортировка:</span>
-            <select
-              value={sort}
-              onChange={(e) =>
-                handleSortChange(e.target.value as SortKey)
-              }
-              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-700"
-            >
-              <option value="new">Сначала новые</option>
-              <option value="price_asc">Цена ↑</option>
-              <option value="price_desc">Цена ↓</option>
-              <option value="name_asc">Название A–Я</option>
-              <option value="name_desc">Название Я–A</option>
-            </select>
-            <span className="ml-3 text-slate-500">Показывать по:</span>
+            <span className="text-slate-500">Показывать по:</span>
             <select
               value={pageSize}
               onChange={(e) =>

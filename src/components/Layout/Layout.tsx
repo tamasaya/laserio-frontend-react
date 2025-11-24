@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { CartBadge } from '../cart/CartBadge'
 import { Breadcrumbs } from '../navigation/Breadcrumbs'
+import { GlobalProductSearch } from '../products/GlobalProductSearch'
 
 type LayoutProps = {
   children: ReactNode
@@ -72,13 +73,7 @@ export function Layout({ children }: LayoutProps) {
               <span>телефон</span>
             </div>
 
-            <div className="relative hidden items-center rounded-full bg-white/5 px-4 py-1.5 text-xs text-sky-100 shadow-sm ring-1 ring-white/10 sm:flex">
-              <span className="mr-2 text-sky-200/70">Поиск</span>
-              <span className="h-5 w-px bg-sky-300/40" />
-              <span className="ml-2 text-[11px] uppercase tracking-wide text-sky-100/70">
-                каталога
-              </span>
-            </div>
+            <GlobalProductSearch />
 
             <Link
               to="/cart"

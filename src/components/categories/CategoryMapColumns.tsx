@@ -7,6 +7,9 @@ type CategoryMapColumnsProps = {
 
 export function CategoryMapColumns({ tree }: CategoryMapColumnsProps) {
   const columns: CategoryNode[][] = [[], [], []]
+
+  // Раскладываем только корневые разделы по трем колонкам,
+  // все вложенные уровни рисуем рекурсивно внутри своей колонки.
   tree.forEach((node, index) => {
     columns[index % 3].push(node)
   })
@@ -19,7 +22,7 @@ export function CategoryMapColumns({ tree }: CategoryMapColumnsProps) {
           className="space-y-3 rounded-2xl bg-white/90 p-4 shadow-card ring-1 ring-slate-200"
         >
           {col.map((node) => (
-            <ColumnNode key={node.id} node={node} />
+            <ColumnNode key={node.id} node={node} depth={0} />
           ))}
         </div>
       ))}
@@ -29,30 +32,41 @@ export function CategoryMapColumns({ tree }: CategoryMapColumnsProps) {
 
 type ColumnNodeProps = {
   node: CategoryNode
+  depth: number
 }
 
-function ColumnNode({ node }: ColumnNodeProps) {
+function ColumnNode({ node, depth }: ColumnNodeProps) {
+  const hasChildren = !!node.children && node.children.length > 0
+  const isRoot = depth === 0
+
   return (
-    <div>
+    <div className={isRoot ? 'mb-3' : 'mb-1'}>
       <Link
         to={`/catalog/${encodeURIComponent(node.slug)}`}
-        className="mb-1 block text-sm font-semibold text-slate-800 hover:text-laser-accent"
+        className={
+          isRoot
+            ? 'mb-1 block text-sm font-semibold text-slate-800 hover:text-laser-accent'
+            : 'block text-xs text-slate-700 hover:text-laser-accent'
+        }
       >
         {node.name}
       </Link>
-      {node.children && node.children.length > 0 && (
-        <ul className="space-y-1 text-xs text-slate-600">
-          {node.children.map((child) => (
-            <li key={child.id}>
-              <Link
-                to={`/catalog/${encodeURIComponent(child.slug)}`}
-                className="hover:text-laser-accent"
-              >
-                {child.name}
-              </Link>
-            </li>
+      {hasChildren && (
+        <div
+          className={
+            isRoot
+              ? 'mt-1 space-y-1 text-xs text-slate-600'
+              : 'mt-1 space-y-1 border-l border-slate-200 pl-3 text-[11px] text-slate-600'
+          }
+        >
+          {node.children!.map((child) => (
+            <ColumnNode
+              key={child.id}
+              node={child}
+              depth={depth + 1}
+            />
           ))}
-        </ul>
+        </div>
       )}
     </div>
   )

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { CategoryTree } from '../components/categories/CategoryTree'
 import { ErrorState, LoadingState } from '../components/common/States'
@@ -34,6 +34,25 @@ export function CatalogPage() {
     loading: detailLoading,
     error: detailError,
   } = useCategoryDetail(slug, page)
+
+  const categoryName =
+    data && 'category' in data
+      ? data.category.name
+      : decodeURIComponent(slug).replace(/-/g, ' ')
+
+  // Кладём название категории в sessionStorage, чтобы хлебные крошки
+  // могли показывать name вместо slug.
+  useEffect(() => {
+    if (!data || !('category' in data)) return
+    try {
+      window.sessionStorage.setItem(
+        `catName:${data.category.slug}`,
+        data.category.name,
+      )
+    } catch {
+      // ignore
+    }
+  }, [data])
 
   const isLeaf = useMemo(() => {
     if (!data) return false
@@ -97,14 +116,14 @@ export function CatalogPage() {
       </aside>
 
       <section className="space-y-4">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 rounded-2xl bg-white/95 p-4 shadow-card ring-1 ring-slate-200">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900">
-              {slug}
+            <h1 className="text-lg font-semibold text-slate-900 md:text-2xl">
+              {categoryName}
             </h1>
-            {data && !isLeaf && (
+            {data && isLeaf && 'meta' in (data as PaginatedProductsResponse) && (
               <p className="text-xs text-slate-500">
-                {(data as CategoryDetailNonLeaf).category.name}
+                {(data as PaginatedProductsResponse).meta?.total ?? 0} товаров
               </p>
             )}
           </div>

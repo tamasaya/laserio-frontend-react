@@ -16,16 +16,16 @@ export function HomePage() {
             </p>
             <div className="flex flex-wrap gap-3 text-sm">
               <Link
-                to="/categories"
+                to="/catalog"
                 className="rounded-full bg-white px-5 py-2 font-semibold text-laser-blue shadow-md"
               >
-                Открыть карту каталога
+                Перейти к каталогу
               </Link>
               <Link
-                to="/catalog/teplovizionnye-sistemy"
+                to="/products"
                 className="rounded-full border border-sky-200/70 bg-white/5 px-5 py-2 text-sky-100 hover:bg-white/10"
               >
-                Тепловизионные системы
+                Поиск товара
               </Link>
             </div>
           </div>
@@ -45,7 +45,7 @@ export function HomePage() {
           <HomeCard
             title="Каталог по разделам"
             description="Переходите к дереву категорий и находите нужный класс оборудования."
-            to="/categories"
+            to="/catalog"
           />
           <HomeCard
             title="Тепловизионные системы"
@@ -53,9 +53,9 @@ export function HomePage() {
             to="/catalog/teplovizionnye-sistemy"
           />
           <HomeCard
-            title="Оборудование для микроэлектроники"
-            description="Решения для измерений, испытаний и производства."
-            to="/catalog/oborudovanie-dlya-mikroelektroniki"
+            title="Поиск по товарам"
+            description="Глобальный поиск по наименованию, описанию и другим параметрам."
+            to="/products"
           />
         </div>
       </section>

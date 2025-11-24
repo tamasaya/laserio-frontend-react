@@ -75,6 +75,24 @@ export type ProductDetail = {
   doc_url?: string | null
 }
 
+export type ProductsListResponse = {
+  products: ProductSummary[]
+  meta?: {
+    page: number
+    pages: number
+    total: number
+    per_page: number
+  }
+}
+
+export type ProductsListParams = {
+  q?: string
+  category?: string
+  sort?: string
+  page?: number
+  limit?: number
+}
+
 export type OrderPayload = {
   customer: {
     full_name: string
@@ -124,6 +142,24 @@ export async function fetchProduct(slug: string): Promise<ProductDetail> {
     `${API_BASE}/products/${encodeURIComponent(slug)}`,
   )
   return handleResponse<ProductDetail>(res)
+}
+
+export async function fetchProductsList(
+  params: ProductsListParams = {},
+): Promise<ProductsListResponse> {
+  const search = new URLSearchParams()
+  if (params.q) search.set('q', params.q)
+  if (params.category) search.set('category', params.category)
+  if (params.sort) search.set('sort', params.sort)
+  if (params.page && params.page > 1) {
+    search.set('page', String(params.page))
+  }
+  if (params.limit) search.set('limit', String(params.limit))
+
+  const query = search.toString()
+  const url = `${API_BASE}/products${query ? `?${query}` : ''}`
+  const res = await fetch(url)
+  return handleResponse<ProductsListResponse>(res)
 }
 
 export async function postOrder(

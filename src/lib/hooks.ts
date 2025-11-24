@@ -3,10 +3,12 @@ import {
   fetchCategoryDetail,
   fetchCategoryTree,
   fetchProduct,
+  fetchProductsList,
   type CategoryDetailNonLeaf,
   type CategoryTreeResponse,
   type PaginatedProductsResponse,
   type ProductDetail,
+  type ProductsListResponse,
 } from './api'
 
 export type LoadState<T> = {
@@ -112,6 +114,54 @@ export function useProduct(slug: string) {
   return state
 }
 
+export function useProductsList(options: {
+  q?: string
+  category?: string
+  sort?: string
+  page?: number
+  limit?: number
+  enabled?: boolean
+}) {
+  const [state, setState] = useState<LoadState<ProductsListResponse>>({
+    data: null,
+    loading: true,
+    error: null,
+  })
 
+  useEffect(() => {
+    const { enabled = true } = options
+    if (!enabled) {
+      setState((s) => ({ ...s, loading: false }))
+      return
+    }
 
+    let cancelled = false
+    setState((s) => ({ ...s, loading: true, error: null }))
+    fetchProductsList(options)
+      .then((data) => {
+        if (cancelled) return
+        setState({ data, loading: false, error: null })
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return
+        setState({
+          data: null,
+          loading: false,
+          error: err instanceof Error ? err.message : 'Ошибка загрузки',
+        })
+      })
 
+    return () => {
+      cancelled = true
+    }
+  }, [
+    options.q,
+    options.category,
+    options.sort,
+    options.page,
+    options.limit,
+    options.enabled,
+  ])
+
+  return state
+}

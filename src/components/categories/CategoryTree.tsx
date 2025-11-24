@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import type { CategoryNode } from '../../lib/api'
 
@@ -38,18 +38,32 @@ type TreeNodeProps = {
 }
 
 function TreeNode({ node, activeSlug, depth }: TreeNodeProps) {
-  const [open, setOpen] = useState(
-    activeSlug ? activeSlug.startsWith(node.slug) : depth === 0,
-  )
+  const hasChildren = !!node.children && node.children.length > 0
   const isActive = activeSlug === node.slug
 
-  const hasChildren = !!node.children && node.children.length > 0
+  const containsActive = useMemo(() => {
+    if (!activeSlug) return false
+    const walk = (current: CategoryNode): boolean => {
+      if (current.slug === activeSlug) return true
+      if (!current.children) return false
+      return current.children.some((c) => walk(c))
+    }
+    return walk(node)
+  }, [activeSlug, node])
+
+  const [open, setOpen] = useState(
+    depth === 0 || containsActive,
+  )
+
+  useEffect(() => {
+    if (containsActive) {
+      setOpen(true)
+    }
+  }, [containsActive])
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
+      <div
         className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition-colors ${
           isActive
             ? 'bg-laser-accent-soft text-laser-blue'
@@ -63,11 +77,22 @@ function TreeNode({ node, activeSlug, depth }: TreeNodeProps) {
           {node.name}
         </Link>
         {hasChildren && (
-          <span className="ml-2 text-[10px] text-slate-500">
-            {open ? '▾' : '▸'}
-          </span>
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={
+              open
+                ? 'Свернуть подкатегории'
+                : 'Развернуть подкатегории'
+            }
+            className="ml-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-300 bg-white text-[11px] text-slate-600 hover:border-laser-blue hover:text-laser-blue"
+          >
+            <span className="text-base leading-none">
+              {open ? '▾' : '▸'}
+            </span>
+          </button>
         )}
-      </button>
+      </div>
       {hasChildren && open && (
         <div className="mt-1 space-y-1 pl-3">
           {node.children!.map((child) => (

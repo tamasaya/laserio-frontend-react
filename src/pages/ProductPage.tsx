@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { ErrorState, LoadingState } from '../components/common/States'
 import { useProduct } from '../lib/hooks'
@@ -8,6 +8,18 @@ export function ProductPage() {
   const { slug = '' } = useParams()
   const { data, loading, error } = useProduct(slug)
   const add = useCartStore((s) => s.add)
+
+  useEffect(() => {
+    if (!data) return
+    try {
+      window.sessionStorage.setItem(
+        `prodName:${data.slug}`,
+        data.name,
+      )
+    } catch {
+      // ignore
+    }
+  }, [data])
 
   if (loading) {
     return <LoadingState message="Загружаем карточку товара..." />

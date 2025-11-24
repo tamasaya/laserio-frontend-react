@@ -34,6 +34,10 @@ npm run build
 ```bash
 npm run preview
 ```
+# Команда для обновления фронта
+
+sudo rsync -av --delete /home/tamasaya/projects/laserio-frontend-react/dist/ /var/www/laserio-frontend/
+
 
 ### Основная структура `src`
 

@@ -55,10 +55,7 @@ export function Layout({ children }: LayoutProps) {
             >
               <div className="hidden flex-col text-left sm:flex">
                 <span className="text-xs uppercase tracking-[0.25em] text-sky-200">
-                  Laser &amp; Opto
-                </span>
-                <span className="text-sm font-medium text-sky-50">
-                  Components Catalog
+                  LAZER DETAILS
                 </span>
               </div>
             </button>
@@ -75,14 +72,34 @@ export function Layout({ children }: LayoutProps) {
                 Главная
               </NavLink>
               <NavLink
-                to="/categories"
+                to="/catalog"
                 className={({ isActive }) =>
                   `transition-colors hover:text-white ${
                     isActive ? 'text-white' : ''
                   }`
                 }
               >
-                Карта каталога
+                Карта категорий
+              </NavLink>
+              <NavLink
+                to="/products"
+                className={({ isActive }) =>
+                  `transition-colors hover:text-white ${
+                    isActive ? 'text-white' : ''
+                  }`
+                }
+              >
+                Каталог
+              </NavLink>
+              <NavLink
+                to="/contacts"
+                className={({ isActive }) =>
+                  `transition-colors hover:text-white ${
+                    isActive ? 'text-white' : ''
+                  }`
+                }
+              >
+                Контакты
               </NavLink>
             </nav>
           </div>
@@ -106,25 +123,9 @@ export function Layout({ children }: LayoutProps) {
 
       <footer className="mt-auto bg-laser-blue-dark py-6 text-xs text-sky-100/80">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
-          <div className="flex gap-6">
-            <span className="cursor-default hover:text-white">
-              Контакты
-            </span>
-            <span className="cursor-default hover:text-white">Адрес</span>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] text-sky-200/80">
-            <span>Доставка и оплата</span>
-            <span>Пользовательское соглашение</span>
-            <span>Политика конфиденциальности</span>
-          </div>
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-sky-500/70">
-              <span className="text-[9px] font-semibold tracking-[0.22em]">
-                LASER
-              </span>
-            </div>
             <span className="text-[11px] uppercase tracking-[0.2em] text-sky-200/80">
-              Components
+              LAZER DETAILS
             </span>
           </div>
         </div>

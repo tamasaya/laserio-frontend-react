@@ -10,6 +10,7 @@ export function Breadcrumbs() {
     products: 'Товары',
     cart: 'Заявка',
     checkout: 'Оформление заявки',
+    contacts: 'Контакты',
   }
 
   const prettify = (seg: string) =>

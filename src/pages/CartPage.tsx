@@ -15,7 +15,7 @@ export function CartPage() {
           каталога.
         </p>
         <Link
-          to="/categories"
+          to="/catalog"
           className="text-sm font-semibold text-laser-accent"
         >
           Перейти к каталогу →

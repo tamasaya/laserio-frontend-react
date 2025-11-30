@@ -112,25 +112,25 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </header>
 
-      <div className="pt-20 md:pt-24">
-      <main className="page-inner">
-        {!isHome && (
-          <div className="mb-4">
-            <Breadcrumbs />
-          </div>
-        )}
-        {children}
-      </main>
+      <div className="pt-20 md:pt-24 flex min-h-screen flex-col">
+        <main className="page-inner flex-1">
+          {!isHome && (
+            <div className="mb-4">
+              <Breadcrumbs />
+            </div>
+          )}
+          {children}
+        </main>
 
-      <footer className="mt-auto gradient-header-reverse py-6 text-xs ">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] uppercase tracking-[0.2em] text-white">
-              LAZER DETAILS
-            </span>
+        <footer className="gradient-header-reverse py-6 text-xs">
+          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] uppercase tracking-[0.2em] text-white">
+                LAZER DETAILS
+              </span>
+            </div>
           </div>
-        </div>
-      </footer>
+        </footer>
       </div>
     </>
   )

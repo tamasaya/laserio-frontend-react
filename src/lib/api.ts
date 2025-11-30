@@ -14,6 +14,7 @@ export type CategoryChildPreview = {
   name: string
   slug: string
   desc_product_count: number
+  description?: string | null
   products_preview: {
     name: string
     slug: string
@@ -35,6 +36,7 @@ export type CategoryDetailNonLeaf = {
     id: number
     name: string
     slug: string
+    description?: string | null
   }
   children: CategoryChildPreview[]
   featured: FeaturedProduct[]
@@ -45,6 +47,7 @@ export type PaginatedProductsResponse = {
     id: number
     name: string
     slug: string
+    description?: string | null
   }
   products: ProductSummary[]
   meta?: {

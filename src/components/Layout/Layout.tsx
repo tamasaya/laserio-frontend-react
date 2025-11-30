@@ -45,7 +45,7 @@ export function Layout({ children }: LayoutProps) {
           ))}
         </div>
       )}
-      <header className="gradient-header text-white">
+      <header className="gradient-header text-white fixed inset-x-0 top-0 z-40">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:py-5">
           <div className="flex items-center gap-10">
             <button
@@ -112,6 +112,7 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </header>
 
+      <div className="pt-20 md:pt-24">
       <main className="page-inner">
         {!isHome && (
           <div className="mb-4">
@@ -130,6 +131,7 @@ export function Layout({ children }: LayoutProps) {
           </div>
         </div>
       </footer>
+      </div>
     </>
   )
 }

@@ -19,6 +19,10 @@ export function CatalogPage() {
   const { slug = '' } = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
   const page = Number(searchParams.get('page') ?? '1') || 1
+  const [activeDescription, setActiveDescription] = useState<{
+    title: string
+    html: string
+  } | null>(null)
 
   const {
     data: tree,
@@ -31,10 +35,14 @@ export function CatalogPage() {
     error: detailError,
   } = useCategoryDetail(slug, page)
 
+  const categoryData =
+    data && 'category' in data ? (data as CategoryDetailNonLeaf | PaginatedProductsResponse).category : null
+
   const categoryName =
-    data && 'category' in data
-      ? data.category.name
-      : decodeURIComponent(slug).replace(/-/g, ' ')
+    categoryData?.name ??
+    decodeURIComponent(slug).replace(/-/g, ' ')
+
+  const rootDescription = categoryData?.description ?? null
 
   // Кладём название категории в sessionStorage, чтобы хлебные крошки
   // могли показывать name вместо slug.
@@ -65,6 +73,20 @@ export function CatalogPage() {
       ? (data as PaginatedProductsResponse).meta
       : undefined
 
+  useEffect(() => {
+    if (!activeDescription) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        setActiveDescription(null)
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => {
+      window.removeEventListener('keydown', handler)
+    }
+  }, [activeDescription])
+
   return (
     <div className="grid gap-6 md:grid-cols-[280px,1fr]">
       <aside className="space-y-4">
@@ -75,7 +97,7 @@ export function CatalogPage() {
         {tree && <CategoryTree tree={tree as CategoryNode[]} />}
       </aside>
 
-      <section className="space-y-4">
+      <section className="relative space-y-4">
         <div className="flex items-center justify-between gap-4 rounded-2xl bg-white/95 p-4 shadow-card ring-1 ring-slate-200">
           <div>
             <h1 className="text-lg font-semibold text-slate-900 md:text-2xl">
@@ -87,6 +109,20 @@ export function CatalogPage() {
               </p>
             )}
           </div>
+          {rootDescription && (
+            <button
+              type="button"
+              onClick={() =>
+                setActiveDescription({
+                  title: categoryName,
+                  html: rootDescription,
+                })
+              }
+              className="text-[11px] font-medium text-laser-accent hover:text-sky-700"
+            >
+              Описание →
+            </button>
+          )}
         </div>
 
         {detailLoading && (
@@ -97,9 +133,12 @@ export function CatalogPage() {
         {data && !detailLoading && !detailError && (
           <>
             {!isLeaf && (
-              <NonLeafView
-                detail={data as CategoryDetailNonLeaf}
-              />
+                <NonLeafView
+                  detail={data as CategoryDetailNonLeaf}
+                  onShowDescription={(title, html) =>
+                    setActiveDescription({ title, html })
+                  }
+                />
             )}
             {isLeaf && (
               <>
@@ -135,6 +174,32 @@ export function CatalogPage() {
             )}
           </>
         )}
+
+        {activeDescription && (
+          <div className="fixed inset-0 z-30 flex justify-end bg-slate-900/30">
+            <div className=" sm:mt-16 flex h-[calc(100%-5rem)] w-full max-w-6xl flex-col bg-white shadow-2xl">
+              <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-3">
+                <button
+                  type="button"
+                  aria-label="Закрыть описание"
+                  onClick={() => setActiveDescription(null)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600 hover:bg-slate-200"
+                >
+                  ×
+                </button>
+                <h2 className="truncate text-sm font-semibold text-slate-900">
+                  {activeDescription.title}
+                </h2>
+              </div>
+              <div className="flex-1 overflow-y-auto px-4 py-3">
+                <div
+                  className="prose prose-sm max-w-none text-slate-700 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-slate-200 [&_td]:px-2 [&_td]:py-1"
+                  dangerouslySetInnerHTML={{ __html: activeDescription.html }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   )
@@ -142,13 +207,18 @@ export function CatalogPage() {
 
 type NonLeafViewProps = {
   detail: CategoryDetailNonLeaf
+  onShowDescription: (title: string, html: string) => void
 }
 
-function NonLeafView({ detail }: NonLeafViewProps) {
+function NonLeafView({ detail, onShowDescription }: NonLeafViewProps) {
   return (
     <div className="space-y-8">
       {detail.children.map((child: CategoryChildPreview) => (
-        <ChildCategorySection key={child.id} child={child} />
+        <ChildCategorySection
+          key={child.id}
+          child={child}
+          onShowDescription={onShowDescription}
+        />
       ))}
     </div>
   )
@@ -158,7 +228,12 @@ type ChildCategorySectionProps = {
   child: CategoryChildPreview
 }
 
-function ChildCategorySection({ child }: ChildCategorySectionProps) {
+function ChildCategorySection({
+  child,
+  onShowDescription,
+}: ChildCategorySectionProps & {
+  onShowDescription: (title: string, html: string) => void
+}) {
   const addToCart = useCartStore((s) => s.add)
   const showToast = useToastStore((s) => s.showToast)
   const [expanded, setExpanded] = useState(false)
@@ -224,12 +299,19 @@ function ChildCategorySection({ child }: ChildCategorySectionProps) {
           </p>
         </div>
         <div className="flex flex-col items-end gap-1 text-[11px]">
-          <Link
-            to={`/catalog/${encodeURIComponent(child.slug)}`}
+          <button
+            type="button"
+            onClick={() =>
+              onShowDescription(
+                child.name,
+                child.description ||
+                  '<p>Описание для этой категории пока недоступно.</p>',
+              )
+            }
             className="font-medium text-laser-accent hover:text-sky-700"
           >
             Описание →
-          </Link>
+          </button>
           {child.desc_product_count > child.products_preview.length && (
             <button
               type="button"

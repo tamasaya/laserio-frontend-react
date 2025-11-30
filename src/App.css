@@ -1,7 +1,11 @@
 /* Global layout helpers specific to the app shell; most styling lives in Tailwind classes. */
 
 .gradient-header {
-  background: radial-gradient(circle at 10% 0%, #123c88 0, #041733 50%, #020817 100%);
+  background: linear-gradient(to bottom, #1A3D63 0%, #0A1832 100%);
+}
+
+.gradient-header-reverse {
+  background: linear-gradient(to top, #1A3D63 0%, #0A1832 100%);
 }
 
 .catalog-card-shadow {

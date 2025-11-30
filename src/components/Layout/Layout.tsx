@@ -54,7 +54,7 @@ export function Layout({ children }: LayoutProps) {
               className="flex items-center gap-3"
             >
               <div className="hidden flex-col text-left sm:flex">
-                <span className="text-xs uppercase tracking-[0.25em] text-sky-200">
+                <span className="text-xs uppercase tracking-[0.25em] text-white">
                   LAZER DETAILS
                 </span>
               </div>
@@ -121,10 +121,10 @@ export function Layout({ children }: LayoutProps) {
         {children}
       </main>
 
-      <footer className="mt-auto bg-laser-blue-dark py-6 text-xs text-sky-100/80">
+      <footer className="mt-auto gradient-header-reverse py-6 text-xs ">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
           <div className="flex items-center gap-2">
-            <span className="text-[11px] uppercase tracking-[0.2em] text-sky-200/80">
+            <span className="text-[11px] uppercase tracking-[0.2em] text-white">
               LAZER DETAILS
             </span>
           </div>

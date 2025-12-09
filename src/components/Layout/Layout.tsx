@@ -16,6 +16,7 @@ export function Layout({ children }: LayoutProps) {
   const removeToast = useToastStore((s) => s.removeToast)
 
   const isHome = location.pathname === '/'
+  const isProductPage = location.pathname.startsWith('/products/')
 
   return (
     <>
@@ -53,11 +54,12 @@ export function Layout({ children }: LayoutProps) {
               onClick={() => navigate('/')}
               className="flex items-center gap-3"
             >
-              <div className="hidden flex-col text-left sm:flex">
-                <span className="text-xs uppercase tracking-[0.25em] text-white">
-                  LAZER DETAILS
-                </span>
-              </div>
+              <img
+                src="/Frame%20839.svg"
+                alt="LAZER DETAILS"
+                className="h-10 w-auto"
+              />
+              <span className="sr-only">LAZER DETAILS</span>
             </button>
 
             <nav className="hidden items-center gap-6 text-sm text-sky-100/90 md:flex">
@@ -115,19 +117,128 @@ export function Layout({ children }: LayoutProps) {
       <div className="pt-20 md:pt-24 flex min-h-screen flex-col">
         <main className="page-inner flex-1">
           {!isHome && (
-            <div className="mb-4">
-              <Breadcrumbs />
+            <div className="mb-4 flex items-center justify-between">
+              {isProductPage ? (
+                <button
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:border-slate-400 hover:bg-slate-50"
+                >
+                  <span className="text-sm">←</span>
+                  <span>Назад</span>
+                </button>
+              ) : (
+                <Breadcrumbs />
+              )}
             </div>
           )}
           {children}
         </main>
 
-        <footer className="gradient-header-reverse py-6 text-xs">
-          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase tracking-[0.2em] text-white">
-                LAZER DETAILS
-              </span>
+        <footer className="gradient-header-reverse py-6 text-xs text-sky-50">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex items-center gap-3">
+                <img
+                  src="/Frame%20839.svg"
+                  alt="LAZER DETAILS"
+                  className="h-8 w-auto"
+                />
+                <div className="hidden flex-col text-left sm:flex">
+                  <span className="text-[11px] uppercase tracking-[0.2em]">
+                    LAZER DETAILS
+                  </span>
+                  <span className="mt-1 text-[11px] text-sky-100/80">
+                    Промышленные лазерные комплектующие и решения
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid gap-4 text-[11px] sm:grid-cols-3">
+                <div className="space-y-2">
+                  <div className="font-semibold uppercase tracking-wide text-sky-100/90">
+                    Контакты
+                  </div>
+                  <div className="space-y-1">
+                    <div>
+                      Отдел продаж:{' '}
+                      <a
+                        href="tel:+74951234567"
+                        className="text-sky-100 hover:text-white"
+                      >
+                        +7 (495) 123‑45‑67
+                      </a>
+                    </div>
+                    <div>
+                      Техподдержка:{' '}
+                      <a
+                        href="tel:+74959876543"
+                        className="text-sky-100 hover:text-white"
+                      >
+                        +7 (495) 987‑65‑43
+                      </a>
+                    </div>
+                    <div>
+                      Email:{' '}
+                      <a
+                        href="mailto:info@test.ru"
+                        className="text-sky-100 hover:text-white"
+                      >
+                        info@test.ru
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="font-semibold uppercase tracking-wide text-sky-100/90">
+                    Адрес
+                  </div>
+                  <div className="text-sky-100/90">
+                    г. Москва, м. Чистые пруды
+                    <br />
+                    Лучевой переулок, д. 7, офис 12
+                    <br />
+                    Пн–Пт: 9:00 – 18:00
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="font-semibold uppercase tracking-wide text-sky-100/90">
+                    Разделы сайта
+                  </div>
+                  <nav className="flex flex-col gap-1">
+                    <NavLink
+                      to="/catalog"
+                      className="text-sky-100/90 hover:text-white"
+                    >
+                      Карта категорий
+                    </NavLink>
+                    <NavLink
+                      to="/products"
+                      className="text-sky-100/90 hover:text-white"
+                    >
+                      Каталог товаров
+                    </NavLink>
+                    <NavLink
+                      to="/cart"
+                      className="text-sky-100/90 hover:text-white"
+                    >
+                      Заявка
+                    </NavLink>
+                    <NavLink
+                      to="/contacts"
+                      className="text-sky-100/90 hover:text-white"
+                    >
+                      Контакты
+                    </NavLink>
+                  </nav>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 border-t border-sky-200/20 pt-3 text-[10px] text-sky-100/70">
+              © {new Date().getFullYear()} LAZER DETAILS. Все права защищены.
             </div>
           </div>
         </footer>

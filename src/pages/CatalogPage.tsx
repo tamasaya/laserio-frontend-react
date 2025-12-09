@@ -42,7 +42,11 @@ export function CatalogPage() {
     categoryData?.name ??
     decodeURIComponent(slug).replace(/-/g, ' ')
 
-  const rootDescription = categoryData?.description ?? null
+  const rootDescription =
+    categoryData?.description &&
+    categoryData.description.trim().length > 0
+      ? categoryData.description
+      : null
 
   // Кладём название категории в sessionStorage, чтобы хлебные крошки
   // могли показывать name вместо slug.
@@ -284,6 +288,9 @@ function ChildCategorySection({
 
   const showPreview = child.products_preview.length > 0
 
+  const hasDescription =
+    !!child.description && child.description.trim().length > 0
+
   return (
     <section className="rounded-2xl bg-white/90 p-4 shadow-card ring-1 ring-slate-200">
       <div className="mb-3 flex items-center justify-between">
@@ -299,19 +306,17 @@ function ChildCategorySection({
           </p>
         </div>
         <div className="flex flex-col items-end gap-1 text-[11px]">
-          <button
-            type="button"
-            onClick={() =>
-              onShowDescription(
-                child.name,
-                child.description ||
-                  '<p>Описание для этой категории пока недоступно.</p>',
-              )
-            }
-            className="font-medium text-laser-accent hover:text-sky-700"
-          >
-            Описание →
-          </button>
+          {hasDescription && (
+            <button
+              type="button"
+              onClick={() =>
+                onShowDescription(child.name, child.description!)
+              }
+              className="font-medium text-laser-accent hover:text-sky-700"
+            >
+              Описание →
+            </button>
+          )}
           {child.desc_product_count > child.products_preview.length && (
             <button
               type="button"

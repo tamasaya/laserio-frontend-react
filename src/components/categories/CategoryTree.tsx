@@ -13,10 +13,7 @@ export function CategoryTree({ tree }: CategoryTreeProps) {
     : null
 
   return (
-    <div className="rounded-2xl bg-white/90 p-3 shadow-card ring-1 ring-slate-200">
-      <div className="mb-3 flex items-center justify-between px-1 text-xs font-medium text-slate-500">
-        <span>Категории</span>
-      </div>
+    <div className="rounded-2xl bg-white/90 p-3 shadow-card ring-1 ring-slate-200 max-h-[calc(100vh-16rem)] overflow-y-auto">
       <div className="space-y-1 text-xs">
         {tree.map((node) => (
           <TreeNode
@@ -51,14 +48,12 @@ function TreeNode({ node, activeSlug, depth }: TreeNodeProps) {
     return walk(node)
   }, [activeSlug, node])
 
-  const [open, setOpen] = useState(
-    depth === 0 || containsActive,
-  )
+  const [open, setOpen] = useState(containsActive)
 
   useEffect(() => {
-    if (containsActive) {
-      setOpen(true)
-    }
+    // При смене активной категории автоматически раскрываем только путь
+    // до неё и закрываем остальные ветки.
+    setOpen(containsActive)
   }, [containsActive])
 
   return (

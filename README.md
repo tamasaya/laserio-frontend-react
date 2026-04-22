@@ -6,7 +6,6 @@ This project implements a catalog of laser &amp; optoelectronic components with:
 
 - **Каталог** с древовидной навигацией категорий и карточками товаров.
 - **Страницы**: `/`, `/categories`, `/catalog/:slug`, `/products/:slug`, `/cart`, `/checkout`.
-- **Корзина-заявка** на Zustand с сохранением в `localStorage`.
 - **Работа с API**: `https://tamasaya.ru/api/laserio`.
 
 ### Установка и запуск
@@ -34,10 +33,10 @@ npm run build
 ```bash
 npm run preview
 ```
+
 # Команда для обновления фронта
 
 sudo rsync -av --delete /home/tamasaya/projects/laserio-frontend-react/dist/ /var/www/laserio-frontend/
-
 
 ### Основная структура `src`
 
@@ -46,4 +45,3 @@ sudo rsync -av --delete /home/tamasaya/projects/laserio-frontend-react/dist/ /va
 - `store/` – Zustand-хранилище корзины.
 - `lib/` – функции работы с API и React-хуки для загрузки данных.
 - `styles/` – место для дополнительных глобальных стилей/дизайн-токенов.
-

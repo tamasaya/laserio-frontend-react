@@ -1,22 +1,22 @@
-import type { ReactNode } from 'react'
-import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { CartBadge } from '../cart/CartBadge'
-import { Breadcrumbs } from '../navigation/Breadcrumbs'
-import { GlobalProductSearch } from '../products/GlobalProductSearch'
-import { useToastStore } from '../../store/toastStore'
+import type { ReactNode } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+// import { CartBadge } from "../cart/CartBadge";
+import { Breadcrumbs } from "../navigation/Breadcrumbs";
+import { GlobalProductSearch } from "../products/GlobalProductSearch";
+import { useToastStore } from "../../store/toastStore";
 
 type LayoutProps = {
-  children: ReactNode
-}
+  children: ReactNode;
+};
 
 export function Layout({ children }: LayoutProps) {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const toasts = useToastStore((s) => s.toasts)
-  const removeToast = useToastStore((s) => s.removeToast)
+  const location = useLocation();
+  const navigate = useNavigate();
+  const toasts = useToastStore((s) => s.toasts);
+  const removeToast = useToastStore((s) => s.removeToast);
 
-  const isHome = location.pathname === '/'
-  const isProductPage = location.pathname.startsWith('/products/')
+  const isHome = location.pathname === "/";
+  const isProductPage = location.pathname.startsWith("/products/");
 
   return (
     <>
@@ -29,9 +29,7 @@ export function Layout({ children }: LayoutProps) {
             >
               <div
                 className={`mt-0.5 h-2 w-2 flex-shrink-0 rounded-full ${
-                  toast.type === 'success'
-                    ? 'bg-emerald-400'
-                    : 'bg-rose-400'
+                  toast.type === "success" ? "bg-emerald-400" : "bg-rose-400"
                 }`}
               />
               <div className="flex-1">{toast.message}</div>
@@ -51,7 +49,7 @@ export function Layout({ children }: LayoutProps) {
           <div className="flex items-center gap-10">
             <button
               type="button"
-              onClick={() => navigate('/')}
+              onClick={() => navigate("/")}
               className="flex items-center gap-3"
             >
               <img
@@ -67,7 +65,7 @@ export function Layout({ children }: LayoutProps) {
                 to="/"
                 className={({ isActive }) =>
                   `transition-colors hover:text-white ${
-                    isActive ? 'text-white' : ''
+                    isActive ? "text-white" : ""
                   }`
                 }
               >
@@ -77,7 +75,7 @@ export function Layout({ children }: LayoutProps) {
                 to="/catalog"
                 className={({ isActive }) =>
                   `transition-colors hover:text-white ${
-                    isActive ? 'text-white' : ''
+                    isActive ? "text-white" : ""
                   }`
                 }
               >
@@ -87,7 +85,7 @@ export function Layout({ children }: LayoutProps) {
                 to="/products"
                 className={({ isActive }) =>
                   `transition-colors hover:text-white ${
-                    isActive ? 'text-white' : ''
+                    isActive ? "text-white" : ""
                   }`
                 }
               >
@@ -97,7 +95,7 @@ export function Layout({ children }: LayoutProps) {
                 to="/contacts"
                 className={({ isActive }) =>
                   `transition-colors hover:text-white ${
-                    isActive ? 'text-white' : ''
+                    isActive ? "text-white" : ""
                   }`
                 }
               >
@@ -109,7 +107,7 @@ export function Layout({ children }: LayoutProps) {
           <div className="flex items-center gap-4">
             <GlobalProductSearch />
 
-            <CartBadge />
+            {/* <CartBadge /> */}
           </div>
         </div>
       </header>
@@ -161,7 +159,7 @@ export function Layout({ children }: LayoutProps) {
                   </div>
                   <div className="space-y-1">
                     <div>
-                      Отдел продаж:{' '}
+                      Отдел продаж:{" "}
                       <a
                         href="tel:+74951234567"
                         className="text-sky-100 hover:text-white"
@@ -170,7 +168,7 @@ export function Layout({ children }: LayoutProps) {
                       </a>
                     </div>
                     <div>
-                      Техподдержка:{' '}
+                      Техподдержка:{" "}
                       <a
                         href="tel:+74959876543"
                         className="text-sky-100 hover:text-white"
@@ -179,7 +177,7 @@ export function Layout({ children }: LayoutProps) {
                       </a>
                     </div>
                     <div>
-                      Email:{' '}
+                      Email:{" "}
                       <a
                         href="mailto:info@test.ru"
                         className="text-sky-100 hover:text-white"
@@ -221,12 +219,6 @@ export function Layout({ children }: LayoutProps) {
                       Каталог товаров
                     </NavLink>
                     <NavLink
-                      to="/cart"
-                      className="text-sky-100/90 hover:text-white"
-                    >
-                      Заявка
-                    </NavLink>
-                    <NavLink
                       to="/contacts"
                       className="text-sky-100/90 hover:text-white"
                     >
@@ -244,7 +236,5 @@ export function Layout({ children }: LayoutProps) {
         </footer>
       </div>
     </>
-  )
+  );
 }
-
-

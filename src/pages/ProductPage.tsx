@@ -1,93 +1,83 @@
-import { useEffect, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { ErrorState, LoadingState } from '../components/common/States'
-import { useProduct } from '../lib/hooks'
-import { normalizeImageUrl } from '../lib/api'
-import { useCartStore } from '../store/cartStore'
-import { useToastStore } from '../store/toastStore'
+import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import { ErrorState, LoadingState } from "../components/common/States";
+import { useProduct } from "../lib/hooks";
+import { normalizeImageUrl } from "../lib/api";
 
 export function ProductPage() {
-  const { slug = '' } = useParams()
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [isViewerOpen, setIsViewerOpen] = useState(false)
-  const [viewerIndex, setViewerIndex] = useState(0)
-  const [zoom, setZoom] = useState(1)
-  const [rotation, setRotation] = useState(0)
-  const [offset, setOffset] = useState({ x: 0, y: 0 })
-  const [isPanning, setIsPanning] = useState(false)
+  const { slug = "" } = useParams();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
   const panStartRef = useRef<{
-    x: number
-    y: number
-    ox: number
-    oy: number
-  } | null>(null)
-  const { data, loading, error } = useProduct(slug)
-  const add = useCartStore((s) => s.add)
-  const showToast = useToastStore((s) => s.showToast)
+    x: number;
+    y: number;
+    ox: number;
+    oy: number;
+  } | null>(null);
+  const { data, loading, error } = useProduct(slug);
 
   const closeViewer = () => {
-    setIsViewerOpen(false)
-    setZoom(1)
-    setRotation(0)
-    setOffset({ x: 0, y: 0 })
-    setIsPanning(false)
-    panStartRef.current = null
-  }
+    setIsViewerOpen(false);
+    setZoom(1);
+    setRotation(0);
+    setOffset({ x: 0, y: 0 });
+    setIsPanning(false);
+    panStartRef.current = null;
+  };
 
   useEffect(() => {
-    if (!data) return
+    if (!data) return;
     try {
-      window.sessionStorage.setItem(
-        `prodName:${data.slug}`,
-        data.name,
-      )
+      window.sessionStorage.setItem(`prodName:${data.slug}`, data.name);
     } catch {
       // ignore
     }
-  }, [data])
+  }, [data]);
 
   useEffect(() => {
-    if (!data) return
-    setActiveIndex(0)
-    setViewerIndex(0)
-    setZoom(1)
-    setRotation(0)
-    setOffset({ x: 0, y: 0 })
-    setIsPanning(false)
-  }, [data?.id])
+    if (!data) return;
+    setActiveIndex(0);
+    setViewerIndex(0);
+    setZoom(1);
+    setRotation(0);
+    setOffset({ x: 0, y: 0 });
+    setIsPanning(false);
+  }, [data?.id]);
 
   useEffect(() => {
-    if (!isViewerOpen) return
+    if (!isViewerOpen) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        closeViewer()
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeViewer();
       }
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [isViewerOpen])
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isViewerOpen]);
 
   if (loading) {
-    return <LoadingState message="Загружаем карточку товара..." />
+    return <LoadingState message="Загружаем карточку товара..." />;
   }
 
   if (error || !data) {
-    return (
-      <ErrorState message={error || 'Товар не найден или недоступен.'} />
-    )
+    return <ErrorState message={error || "Товар не найден или недоступен."} />;
   }
 
   const galleryUrls =
-    data.gallery?.map((img) => normalizeImageUrl(img.url)) ?? []
+    data.gallery?.map((img) => normalizeImageUrl(img.url)) ?? [];
 
   const allImages = [
     normalizeImageUrl(data.primary_image_url),
     ...galleryUrls,
   ].filter(
-    (url, index, arr): url is string =>
-      !!url && arr.indexOf(url) === index,
-  )
+    (url, index, arr): url is string => !!url && arr.indexOf(url) === index,
+  );
 
   return (
     <div className="space-y-8 rounded-2xl bg-white/95 p-6 shadow-card ring-1 ring-slate-200">
@@ -96,24 +86,6 @@ export function ProductPage() {
           <h1 className="mb-4 text-2xl font-semibold text-slate-900">
             {data.name}
           </h1>
-          <div className="flex flex-wrap items-center gap-4">
-            <button
-              type="button"
-              onClick={() => {
-                add({
-                  id: data.id,
-                  name: data.name,
-                  slug: data.slug,
-                  price: data.price,
-                  primary_image_url: data.primary_image_url,
-                })
-                showToast('success', 'Товар добавлен в заявку.')
-              }}
-              className="rounded-full bg-laser-blue px-6 py-2 text-sm font-semibold text-sky-50 hover:bg-laser-blue-light"
-            >
-              Добавить в заявку
-            </button>
-          </div>
         </div>
 
         <div className="flex flex-col gap-3 md:items-end">
@@ -123,13 +95,13 @@ export function ProductPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setViewerIndex(activeIndex)
-                    setZoom(1)
-                    setRotation(0)
-                    setOffset({ x: 0, y: 0 })
-                    setIsPanning(false)
-                    panStartRef.current = null
-                    setIsViewerOpen(true)
+                    setViewerIndex(activeIndex);
+                    setZoom(1);
+                    setRotation(0);
+                    setOffset({ x: 0, y: 0 });
+                    setIsPanning(false);
+                    panStartRef.current = null;
+                    setIsViewerOpen(true);
                   }}
                   className="flex h-full w-full items-center justify-center"
                 >
@@ -177,8 +149,8 @@ export function ProductPage() {
                       onClick={() => setActiveIndex(index)}
                       className={`flex h-16 w-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border bg-slate-50 ${
                         index === activeIndex
-                          ? 'border-laser-blue'
-                          : 'border-slate-200'
+                          ? "border-laser-blue"
+                          : "border-slate-200"
                       }`}
                     >
                       <img
@@ -219,41 +191,41 @@ export function ProductPage() {
             <div
               className="flex flex-1 items-center justify-center overflow-hidden rounded-xl bg-slate-950/60"
               onWheel={(e) => {
-                e.preventDefault()
-                const delta = e.deltaY < 0 ? 0.03 : -0.03
+                e.preventDefault();
+                const delta = e.deltaY < 0 ? 0.03 : -0.03;
                 setZoom((current) => {
-                  const next = Math.min(3, Math.max(0.5, current + delta))
+                  const next = Math.min(3, Math.max(0.5, current + delta));
                   if (next === 1) {
-                    setOffset({ x: 0, y: 0 })
+                    setOffset({ x: 0, y: 0 });
                   }
-                  return Number(next.toFixed(2))
-                })
+                  return Number(next.toFixed(2));
+                });
               }}
               onMouseDown={(e) => {
-                e.preventDefault()
-                setIsPanning(true)
+                e.preventDefault();
+                setIsPanning(true);
                 panStartRef.current = {
                   x: e.clientX,
                   y: e.clientY,
                   ox: offset.x,
                   oy: offset.y,
-                }
+                };
               }}
               onMouseMove={(e) => {
-                if (!isPanning || !panStartRef.current) return
-                e.preventDefault()
-                const { x, y, ox, oy } = panStartRef.current
-                const dx = e.clientX - x
-                const dy = e.clientY - y
-                setOffset({ x: ox + dx, y: oy + dy })
+                if (!isPanning || !panStartRef.current) return;
+                e.preventDefault();
+                const { x, y, ox, oy } = panStartRef.current;
+                const dx = e.clientX - x;
+                const dy = e.clientY - y;
+                setOffset({ x: ox + dx, y: oy + dy });
               }}
               onMouseUp={() => {
-                setIsPanning(false)
-                panStartRef.current = null
+                setIsPanning(false);
+                panStartRef.current = null;
               }}
               onMouseLeave={() => {
-                setIsPanning(false)
-                panStartRef.current = null
+                setIsPanning(false);
+                panStartRef.current = null;
               }}
             >
               <img
@@ -262,7 +234,7 @@ export function ProductPage() {
                 className="max-h-full max-w-full select-none"
                 style={{
                   transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom}) rotate(${rotation}deg)`,
-                  transition: 'transform 150ms ease-out',
+                  transition: "transform 150ms ease-out",
                 }}
               />
             </div>
@@ -299,14 +271,11 @@ export function ProductPage() {
                   type="button"
                   onClick={() =>
                     setZoom((z) => {
-                      const next = Math.max(
-                        0.5,
-                        Number((z - 0.25).toFixed(2)),
-                      )
+                      const next = Math.max(0.5, Number((z - 0.25).toFixed(2)));
                       if (next === 1) {
-                        setOffset({ x: 0, y: 0 })
+                        setOffset({ x: 0, y: 0 });
                       }
-                      return next
+                      return next;
                     })
                   }
                   className="rounded-full bg-white/10 px-2 py-1 text-xs hover:bg-white/20"
@@ -319,9 +288,7 @@ export function ProductPage() {
                 <button
                   type="button"
                   onClick={() =>
-                    setZoom((z) =>
-                      Math.min(3, Number((z + 0.25).toFixed(2))),
-                    )
+                    setZoom((z) => Math.min(3, Number((z + 0.25).toFixed(2))))
                   }
                   className="rounded-full bg-white/10 px-2 py-1 text-xs hover:bg-white/20"
                 >
@@ -330,9 +297,9 @@ export function ProductPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setZoom(1)
-                    setRotation(0)
-                    setOffset({ x: 0, y: 0 })
+                    setZoom(1);
+                    setRotation(0);
+                    setOffset({ x: 0, y: 0 });
                   }}
                   className="rounded-full bg-white/10 px-3 py-1 text-xs hover:bg-white/20"
                 >
@@ -340,18 +307,14 @@ export function ProductPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() =>
-                    setRotation((r) => (r - 90 + 360) % 360)
-                  }
+                  onClick={() => setRotation((r) => (r - 90 + 360) % 360)}
                   className="rounded-full bg-white/10 px-2 py-1 text-xs hover:bg-white/20"
                 >
                   ↺
                 </button>
                 <button
                   type="button"
-                  onClick={() =>
-                    setRotation((r) => (r + 90) % 360)
-                  }
+                  onClick={() => setRotation((r) => (r + 90) % 360)}
                   className="rounded-full bg-white/10 px-2 py-1 text-xs hover:bg-white/20"
                 >
                   ↻
@@ -369,37 +332,33 @@ export function ProductPage() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 type ProductTabsProps = {
-  descriptionHtml?: string | null
-  specsHtml?: string | null
-  docUrl?: string | null
-}
+  descriptionHtml?: string | null;
+  specsHtml?: string | null;
+  docUrl?: string | null;
+};
 
-function ProductTabs({
-  descriptionHtml,
-  specsHtml,
-  docUrl,
-}: ProductTabsProps) {
-  const hasSpecs = !!specsHtml
-  const hasDocs = !!docUrl
+function ProductTabs({ descriptionHtml, specsHtml, docUrl }: ProductTabsProps) {
+  const hasSpecs = !!specsHtml;
+  const hasDocs = !!docUrl;
 
-  const [active, setActive] = useState<'description' | 'specs' | 'docs'>(
-    'description',
-  )
+  const [active, setActive] = useState<"description" | "specs" | "docs">(
+    "description",
+  );
 
   return (
     <div>
       <div className="mb-3 flex gap-3 border-b border-slate-200 text-xs">
         <button
           type="button"
-          onClick={() => setActive('description')}
+          onClick={() => setActive("description")}
           className={`border-b-2 pb-2 ${
-            active === 'description'
-              ? 'border-laser-blue text-laser-blue'
-              : 'border-transparent text-slate-500'
+            active === "description"
+              ? "border-laser-blue text-laser-blue"
+              : "border-transparent text-slate-500"
           }`}
         >
           Описание
@@ -407,11 +366,11 @@ function ProductTabs({
         {hasSpecs && (
           <button
             type="button"
-            onClick={() => setActive('specs')}
+            onClick={() => setActive("specs")}
             className={`border-b-2 pb-2 ${
-              active === 'specs'
-                ? 'border-laser-blue text-laser-blue'
-                : 'border-transparent text-slate-500'
+              active === "specs"
+                ? "border-laser-blue text-laser-blue"
+                : "border-transparent text-slate-500"
             }`}
           >
             Характеристики
@@ -423,21 +382,21 @@ function ProductTabs({
             onClick={() => {
               if (hasDocs && docUrl) {
                 try {
-                  const link = document.createElement('a')
-                  link.href = docUrl
-                  link.download = ''
-                  document.body.appendChild(link)
-                  link.click()
-                  document.body.removeChild(link)
+                  const link = document.createElement("a");
+                  link.href = docUrl;
+                  link.download = "";
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
                 } catch {
-                  window.open(docUrl, '_blank', 'noopener,noreferrer')
+                  window.open(docUrl, "_blank", "noopener,noreferrer");
                 }
               }
             }}
             className={`border-b-2 pb-2 ${
-              active === 'docs'
-                ? 'border-laser-blue text-laser-blue'
-                : 'border-transparent text-slate-500'
+              active === "docs"
+                ? "border-laser-blue text-laser-blue"
+                : "border-transparent text-slate-500"
             }`}
           >
             Скачать документацию
@@ -446,18 +405,14 @@ function ProductTabs({
       </div>
 
       <div className="prose max-w-none prose-sm text-slate-700 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-slate-200 [&_td]:px-2 [&_td]:py-1">
-        {active === 'description' && descriptionHtml && (
-          <div
-            dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-          />
+        {active === "description" && descriptionHtml && (
+          <div dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
         )}
-        {active === 'description' && !descriptionHtml && (
-          <p className="text-sm text-slate-500">
-            Описание пока недоступно.
-          </p>
+        {active === "description" && !descriptionHtml && (
+          <p className="text-sm text-slate-500">Описание пока недоступно.</p>
         )}
 
-        {active === 'specs' && hasSpecs && specsHtml && (
+        {active === "specs" && hasSpecs && specsHtml && (
           <div dangerouslySetInnerHTML={{ __html: specsHtml }} />
         )}
 
@@ -465,7 +420,5 @@ function ProductTabs({
             клик по кнопке сразу инициирует скачивание файла. */}
       </div>
     </div>
-  )
+  );
 }
-
-

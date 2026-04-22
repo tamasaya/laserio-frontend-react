@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { CategoryTree } from '../components/categories/CategoryTree'
-import { ErrorState, LoadingState } from '../components/common/States'
-import { ProductsGrid } from '../components/products/ProductsGrid'
+import { useEffect, useMemo, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import { CategoryTree } from "../components/categories/CategoryTree";
+import { ErrorState, LoadingState } from "../components/common/States";
+import { ProductsGrid } from "../components/products/ProductsGrid";
 import {
   type CategoryChildPreview,
   type CategoryDetailNonLeaf,
@@ -10,86 +10,82 @@ import {
   type PaginatedProductsResponse,
   type ProductSummary,
   fetchCategoryProducts,
-} from '../lib/api'
-import { useCategoryDetail, useCategoryTree } from '../lib/hooks'
-import { useCartStore } from '../store/cartStore'
-import { useToastStore } from '../store/toastStore'
+} from "../lib/api";
+import { useCategoryDetail, useCategoryTree } from "../lib/hooks";
 
 export function CatalogPage() {
-  const { slug = '' } = useParams()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const page = Number(searchParams.get('page') ?? '1') || 1
+  const { slug = "" } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = Number(searchParams.get("page") ?? "1") || 1;
   const [activeDescription, setActiveDescription] = useState<{
-    title: string
-    html: string
-  } | null>(null)
+    title: string;
+    html: string;
+  } | null>(null);
 
   const {
     data: tree,
     loading: treeLoading,
     error: treeError,
-  } = useCategoryTree()
+  } = useCategoryTree();
   const {
     data,
     loading: detailLoading,
     error: detailError,
-  } = useCategoryDetail(slug, page)
+  } = useCategoryDetail(slug, page);
 
   const categoryData =
-    data && 'category' in data ? (data as CategoryDetailNonLeaf | PaginatedProductsResponse).category : null
+    data && "category" in data
+      ? (data as CategoryDetailNonLeaf | PaginatedProductsResponse).category
+      : null;
 
   const categoryName =
-    categoryData?.name ??
-    decodeURIComponent(slug).replace(/-/g, ' ')
+    categoryData?.name ?? decodeURIComponent(slug).replace(/-/g, " ");
 
   const rootDescription =
-    categoryData?.description &&
-    categoryData.description.trim().length > 0
+    categoryData?.description && categoryData.description.trim().length > 0
       ? categoryData.description
-      : null
+      : null;
 
   // Кладём название категории в sessionStorage, чтобы хлебные крошки
   // могли показывать name вместо slug.
   useEffect(() => {
-    if (!data || !('category' in data)) return
+    if (!data || !("category" in data)) return;
     try {
       window.sessionStorage.setItem(
         `catName:${data.category.slug}`,
         data.category.name,
-      )
+      );
     } catch {
       // ignore
     }
-  }, [data])
+  }, [data]);
 
   const isLeaf = useMemo(() => {
-    if (!data) return false
-    return (data as PaginatedProductsResponse).products !== undefined
-  }, [data])
+    if (!data) return false;
+    return (data as PaginatedProductsResponse).products !== undefined;
+  }, [data]);
 
   const onPageChange = (next: number) => {
-    searchParams.set('page', String(next))
-    setSearchParams(searchParams, { replace: true })
-  }
+    searchParams.set("page", String(next));
+    setSearchParams(searchParams, { replace: true });
+  };
 
   const meta =
-    isLeaf && data
-      ? (data as PaginatedProductsResponse).meta
-      : undefined
+    isLeaf && data ? (data as PaginatedProductsResponse).meta : undefined;
 
   useEffect(() => {
-    if (!activeDescription) return
+    if (!activeDescription) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        setActiveDescription(null)
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setActiveDescription(null);
       }
-    }
-    window.addEventListener('keydown', handler)
+    };
+    window.addEventListener("keydown", handler);
     return () => {
-      window.removeEventListener('keydown', handler)
-    }
-  }, [activeDescription])
+      window.removeEventListener("keydown", handler);
+    };
+  }, [activeDescription]);
 
   return (
     <div className="grid gap-6 md:grid-cols-[280px,1fr]">
@@ -107,11 +103,13 @@ export function CatalogPage() {
             <h1 className="text-lg font-semibold text-slate-900 md:text-2xl">
               {categoryName}
             </h1>
-            {data && isLeaf && 'meta' in (data as PaginatedProductsResponse) && (
-              <p className="text-xs text-slate-500">
-                {(data as PaginatedProductsResponse).meta?.total ?? 0} товаров
-              </p>
-            )}
+            {data &&
+              isLeaf &&
+              "meta" in (data as PaginatedProductsResponse) && (
+                <p className="text-xs text-slate-500">
+                  {(data as PaginatedProductsResponse).meta?.total ?? 0} товаров
+                </p>
+              )}
           </div>
           {rootDescription && (
             <button
@@ -137,19 +135,17 @@ export function CatalogPage() {
         {data && !detailLoading && !detailError && (
           <>
             {!isLeaf && (
-                <NonLeafView
-                  detail={data as CategoryDetailNonLeaf}
-                  onShowDescription={(title, html) =>
-                    setActiveDescription({ title, html })
-                  }
-                />
+              <NonLeafView
+                detail={data as CategoryDetailNonLeaf}
+                onShowDescription={(title, html) =>
+                  setActiveDescription({ title, html })
+                }
+              />
             )}
             {isLeaf && (
               <>
                 <ProductsGrid
-                  products={
-                    (data as PaginatedProductsResponse).products
-                  }
+                  products={(data as PaginatedProductsResponse).products}
                 />
                 {meta && meta.pages > 1 && (
                   <div className="mt-4 flex items-center justify-center gap-3 text-xs text-slate-600">
@@ -206,13 +202,13 @@ export function CatalogPage() {
         )}
       </section>
     </div>
-  )
+  );
 }
 
 type NonLeafViewProps = {
-  detail: CategoryDetailNonLeaf
-  onShowDescription: (title: string, html: string) => void
-}
+  detail: CategoryDetailNonLeaf;
+  onShowDescription: (title: string, html: string) => void;
+};
 
 function NonLeafView({ detail, onShowDescription }: NonLeafViewProps) {
   return (
@@ -225,71 +221,67 @@ function NonLeafView({ detail, onShowDescription }: NonLeafViewProps) {
         />
       ))}
     </div>
-  )
+  );
 }
 
 type ChildCategorySectionProps = {
-  child: CategoryChildPreview
-}
+  child: CategoryChildPreview;
+};
 
 function ChildCategorySection({
   child,
   onShowDescription,
 }: ChildCategorySectionProps & {
-  onShowDescription: (title: string, html: string) => void
+  onShowDescription: (title: string, html: string) => void;
 }) {
-  const addToCart = useCartStore((s) => s.add)
-  const showToast = useToastStore((s) => s.showToast)
-  const [expanded, setExpanded] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [allProducts, setAllProducts] = useState<ProductSummary[] | null>(
-    null,
-  )
+  const [expanded, setExpanded] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [allProducts, setAllProducts] = useState<ProductSummary[] | null>(null);
 
   const previewProducts = useMemo(() => {
     if (allProducts && allProducts.length > 0) {
-      return allProducts.slice(0, 3)
+      return allProducts.slice(0, 3);
     }
     return child.products_preview.map((p) => ({
       id: 0,
       name: p.name,
       slug: p.slug,
       primary_image_url: p.primary_image_url,
-    })) as unknown as ProductSummary[]
-  }, [allProducts, child.products_preview])
+    })) as unknown as ProductSummary[];
+  }, [allProducts, child.products_preview]);
 
   const extraProducts = useMemo(() => {
-    if (!allProducts) return []
-    if (allProducts.length <= 3) return []
-    return allProducts.slice(3)
-  }, [allProducts])
+    if (!allProducts) return [];
+    if (allProducts.length <= 3) return [];
+    return allProducts.slice(3);
+  }, [allProducts]);
 
   const handleToggle = () => {
-    const next = !expanded
-    setExpanded(next)
+    const next = !expanded;
+    setExpanded(next);
     if (next && !loading && !error && !allProducts) {
-      setLoading(true)
+      setLoading(true);
       fetchCategoryProducts(child.slug)
         .then((resp) => {
-          setAllProducts(resp.products)
-          setLoading(false)
+          setAllProducts(resp.products);
+          setLoading(false);
         })
         .catch((e: unknown) => {
           setError(
             e instanceof Error
               ? e.message
-              : 'Не удалось загрузить товары категории.',
-          )
-          setLoading(false)
-        })
+              : "Не удалось загрузить товары категории.",
+          );
+          setLoading(false);
+        });
     }
-  }
+  };
 
-  const showPreview = child.products_preview.length > 0
+  const showPreview = child.products_preview.length > 0;
 
   const hasDescription =
-    !!child.description && child.description.trim().length > 0
+    !!child.description && child.description.trim().length > 0;
 
   return (
     <section className="rounded-2xl bg-white/90 p-4 shadow-card ring-1 ring-slate-200">
@@ -309,9 +301,7 @@ function ChildCategorySection({
           {hasDescription && (
             <button
               type="button"
-              onClick={() =>
-                onShowDescription(child.name, child.description!)
-              }
+              onClick={() => onShowDescription(child.name, child.description!)}
               className="font-medium text-laser-accent hover:text-sky-700"
             >
               Описание →
@@ -323,16 +313,14 @@ function ChildCategorySection({
               onClick={handleToggle}
               className="rounded-full border border-laser-accent px-3 py-1 text-[11px] font-medium text-laser-accent hover:bg-laser-accent hover:text-white"
             >
-              {expanded ? 'Скрыть товары' : 'Показать все товары'}
+              {expanded ? "Скрыть товары" : "Показать все товары"}
             </button>
           )}
         </div>
       </div>
 
       {!showPreview ? (
-        <p className="text-xs text-slate-500">
-          Нет предварительных товаров.
-        </p>
+        <p className="text-xs text-slate-500">Нет предварительных товаров.</p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-3">
           {previewProducts.map((p) => (
@@ -359,22 +347,6 @@ function ChildCategorySection({
                 <span className="mb-2 line-clamp-2 text-xs font-medium text-slate-800">
                   {p.name}
                 </span>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    addToCart({
-                      id: p.id || 0,
-                      name: p.name,
-                      slug: p.slug,
-                      primary_image_url: p.primary_image_url,
-                    })
-                    showToast('success', 'Товар добавлен в заявку.')
-                  }}
-                  className="mt-auto self-start rounded-full bg-laser-blue px-3 py-1 text-[11px] font-semibold text-sky-50 hover:bg-laser-blue-light"
-                >
-                  В заявку
-                </button>
               </div>
             </Link>
           ))}
@@ -388,11 +360,7 @@ function ChildCategorySection({
               Загружаем остальные товары...
             </p>
           )}
-          {error && (
-            <p className="text-[11px] text-rose-600">
-              {error}
-            </p>
-          )}
+          {error && <p className="text-[11px] text-rose-600">{error}</p>}
           {!loading && !error && extraProducts.length === 0 && (
             <p className="text-[11px] text-slate-500">
               Все товары уже показаны выше.
@@ -424,22 +392,6 @@ function ChildCategorySection({
                     <span className="mb-1 line-clamp-2 text-xs font-medium text-slate-800">
                       {p.name}
                     </span>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        addToCart({
-                          id: p.id,
-                          name: p.name,
-                          slug: p.slug,
-                          primary_image_url: p.primary_image_url,
-                        })
-                        showToast('success', 'Товар добавлен в заявку.')
-                      }}
-                      className="mt-auto self-start rounded-full bg-laser-blue px-3 py-1 text-[11px] font-semibold text-sky-50 hover:bg-laser-blue-light"
-                    >
-                      В заявку
-                    </button>
                   </div>
                 </Link>
               ))}
@@ -448,7 +400,5 @@ function ChildCategorySection({
         </div>
       )}
     </section>
-  )
+  );
 }
-
-

@@ -1,20 +1,15 @@
-import { Link } from 'react-router-dom'
-import type { ProductSummary } from '../../lib/api'
-import { normalizeImageUrl } from '../../lib/api'
-import { useCartStore } from '../../store/cartStore'
-import { useToastStore } from '../../store/toastStore'
+import { Link } from "react-router-dom";
+import type { ProductSummary } from "../../lib/api";
+import { normalizeImageUrl } from "../../lib/api";
 
 type ProductCardProps = {
-  product: ProductSummary
-}
+  product: ProductSummary;
+};
 
 export function ProductCard({ product }: ProductCardProps) {
-  const add = useCartStore((s) => s.add)
-  const showToast = useToastStore((s) => s.showToast)
-
   const imageUrl = normalizeImageUrl(
     product.primary_image_url ?? product.image ?? null,
-  )
+  );
 
   return (
     <div className="flex h-full flex-col rounded-2xl bg-white shadow-card ring-1 ring-slate-200">
@@ -31,9 +26,7 @@ export function ProductCard({ product }: ProductCardProps) {
               loading="lazy"
             />
           ) : (
-            <div className="text-xs text-slate-400">
-              Нет изображения
-            </div>
+            <div className="text-xs text-slate-400">Нет изображения</div>
           )}
         </div>
         <div className="flex flex-1 flex-col px-4 py-3">
@@ -42,31 +35,6 @@ export function ProductCard({ product }: ProductCardProps) {
           </h3>
         </div>
       </Link>
-      <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3">
-        <button
-          type="button"
-          className="rounded-full bg-laser-blue text-xs font-semibold text-sky-50 px-3 py-1.5 hover:bg-laser-blue-light"
-          onClick={() => {
-            add({
-              id: product.id,
-              name: product.name,
-              slug: product.slug,
-              price: product.price ?? 0,
-              primary_image_url:
-                product.primary_image_url ??
-                (product.image as string | null | undefined) ??
-                null,
-            })
-            showToast('success', 'Товар добавлен в заявку.')
-          }}
-        >
-          В заявку
-        </button>
-      </div>
     </div>
-  )
+  );
 }
-
-
-
-

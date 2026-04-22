@@ -1,55 +1,55 @@
-import { useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { ErrorState, LoadingState } from '../components/common/States'
-import { SearchBar } from '../components/common/SearchBar'
-import { ProductsGrid } from '../components/products/ProductsGrid'
-import { useProductsList } from '../lib/hooks'
+import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { ErrorState, LoadingState } from "../components/common/States";
+import { SearchBar } from "../components/common/SearchBar";
+import { ProductsGrid } from "../components/products/ProductsGrid";
+import { useProductsList } from "../lib/hooks";
 
 export function ProductsListPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const qParam = searchParams.get('q') ?? ''
-  const page = Number(searchParams.get('page') ?? '1') || 1
-  const limitParam = Number(searchParams.get('limit') ?? '20') || 20
-  const pageSize = [20, 50, 100].includes(limitParam) ? limitParam : 20
+  const qParam = searchParams.get("q") ?? "";
+  const page = Number(searchParams.get("page") ?? "1") || 1;
+  const limitParam = Number(searchParams.get("limit") ?? "20") || 20;
+  const pageSize = [20, 50, 100].includes(limitParam) ? limitParam : 20;
 
-  const [searchValue, setSearchValue] = useState(qParam)
+  const [searchValue, setSearchValue] = useState(qParam);
 
   const { data, loading, error } = useProductsList({
     q: qParam || undefined,
     page,
     limit: pageSize,
-  })
+  });
 
-  const meta = data?.meta
+  const meta = data?.meta;
 
-  const products = useMemo(() => data?.products ?? [], [data])
+  const products = useMemo(() => data?.products ?? [], [data]);
 
   const updateParam = (key: string, value: string | null) => {
-    const next = new URLSearchParams(searchParams)
+    const next = new URLSearchParams(searchParams);
     if (value && value.length > 0) {
-      next.set(key, value)
+      next.set(key, value);
     } else {
-      next.delete(key)
+      next.delete(key);
     }
-    if (key !== 'page') {
-      next.set('page', '1')
+    if (key !== "page") {
+      next.set("page", "1");
     }
-    setSearchParams(next, { replace: true })
-  }
+    setSearchParams(next, { replace: true });
+  };
 
   const handleSearchChange = (value: string) => {
-    setSearchValue(value)
-    updateParam('q', value || null)
-  }
+    setSearchValue(value);
+    updateParam("q", value || null);
+  };
 
   const handlePageChange = (nextPage: number) => {
-    updateParam('page', String(nextPage))
-  }
+    updateParam("page", String(nextPage));
+  };
 
   const handlePageSizeChange = (value: number) => {
-    updateParam('limit', String(value))
-  }
+    updateParam("limit", String(value));
+  };
 
   return (
     <div className="space-y-6">
@@ -90,9 +90,7 @@ export function ProductsListPage() {
         </div>
       </div>
 
-      {loading && (
-        <LoadingState message="Загружаем список товаров..." />
-      )}
+      {loading && <LoadingState message="Загружаем список товаров..." />}
       {error && <ErrorState message={error} />}
 
       {data && !loading && !error && (
@@ -124,7 +122,5 @@ export function ProductsListPage() {
         </>
       )}
     </div>
-  )
+  );
 }
-
-

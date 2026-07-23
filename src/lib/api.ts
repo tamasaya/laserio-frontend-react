@@ -1,4 +1,4 @@
-const API_BASE = "http://82.148.17.216/api/laserio";
+const API_BASE = "http://77.105.169.22/api/laserio";
 
 export type CategoryNode = {
   id: number;
